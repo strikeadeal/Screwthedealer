@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<meta name="theme-color" content="#0D1F0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dealer">
+<title>Screw the Dealer</title>
+<link rel="manifest" href="manifest.json">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root{
+  --felt:#0D1F0F;
+  --felt-2:#102715;
+  --felt-3:#16331E;
+  --felt-edge:#091709;
+  --line:rgba(217,174,85,.20);
+  --line-soft:rgba(217,174,85,.10);
+  --ivory:#F4ECD6;
+  --ivory-2:#E6DABA;
+  --ink:#1B130C;
+  --gold:#D9AE55;
+  --gold-bright:#F2CE7B;
+  --gold-deep:#A9802F;
+  --red:#B23A2E;
+  --red-bright:#D2685C;
+  --text:#EAEDE1;
+  --text-dim:#94A88E;
+
+  --display:'Playfair Display',Georgia,serif;
+  --ui:'Inter',system-ui,-apple-system,sans-serif;
+
+  --sp-1:6px; --sp-2:10px; --sp-3:16px; --sp-4:24px; --sp-5:36px; --sp-6:52px;
+  --r-sm:8px; --r-md:14px; --r-lg:22px;
+  --tap:52px;
+
+  --sh-card:0 18px 40px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.4);
+  --sh-pop:0 10px 30px rgba(0,0,0,.5);
+
+  --z-screen:1; --z-banner:5; --z-toast:9;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+html,body{height:100%}
+
+body{
+  font-family:var(--ui);
+  color:var(--text);
+  background:
+    radial-gradient(120% 80% at 50% -10%, #173a20 0%, var(--felt) 55%, var(--felt-edge) 100%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+  min-height:100%;
+  min-height:100dvh;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
+input{font-family:inherit}
+
+/* ---------- App shell / screens ---------- */
+#app{position:relative;width:100%;max-width:480px;margin:0 auto;min-height:100dvh}
+
+.screen{
+  display:none;
+  flex-direction:column;
+  gap:var(--sp-4);
+  padding:var(--sp-4) var(--sp-3) var(--sp-6);
+  min-height:100dvh;
+  z-index:var(--z-screen);
+  animation:screen-in .42s cubic-bezier(.2,.7,.2,1) both;
+}
+.screen.active{display:flex}
+
+@keyframes screen-in{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+
+/* ---------- Type / headers ---------- */
+.eyebrow{
+  font-family:var(--ui);
+  font-size:.72rem;
+  font-weight:600;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  color:var(--gold);
+}
+.title{
+  font-family:var(--display);
+  font-weight:800;
+  line-height:.96;
+  letter-spacing:-.01em;
+  font-size:clamp(2.6rem,13vw,3.4rem);
+  color:var(--ivory);
+}
+.title .amp{color:var(--gold);font-style:italic;font-weight:700}
+.subtitle{color:var(--text-dim);font-size:.95rem;line-height:1.5;max-width:32ch}
+
+.brand{display:flex;flex-direction:column;gap:var(--sp-2)}
+.brand-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 70%);margin-top:var(--sp-1)}
+
+.screen-head{display:flex;flex-direction:column;gap:var(--sp-1)}
+.screen-head h2{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(1.9rem,8vw,2.4rem);
+  color:var(--ivory);
+  line-height:1.05;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  min-height:var(--tap);
+  padding:0 var(--sp-4);
+  border-radius:var(--r-md);
+  font-weight:600;font-size:1.02rem;letter-spacing:.01em;
+  transition:transform .12s ease, filter .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+.btn:active{transform:scale(.97)}
+
+.btn-primary{
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold) 55%,var(--gold-deep));
+  color:#241803;
+  font-weight:700;
+  box-shadow:0 6px 18px rgba(217,174,85,.28), inset 0 1px 0 rgba(255,255,255,.4);
+}
+.btn-primary:disabled{filter:grayscale(.7) brightness(.7);opacity:.55;box-shadow:none;cursor:default}
+
+.btn-secondary{
+  background:var(--felt-3);
+  color:var(--text);
+  border:1px solid var(--line);
+}
+.btn-danger{
+  background:transparent;
+  color:var(--red-bright);
+  border:1px solid rgba(178,58,46,.5);
+}
+.btn-ghost{
+  background:transparent;color:var(--text-dim);min-height:48px;font-size:.9rem;
+}
+.btn-block{width:100%}
+.btn-lg{min-height:60px;font-size:1.12rem}
+
+.actions{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:auto}
+
+/* ---------- Rules disclosure ---------- */
+.rules{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:rgba(0,0,0,.18)}
+.rules summary{
+  list-style:none;cursor:pointer;padding:14px var(--sp-3);
+  display:flex;justify-content:space-between;align-items:center;
+  font-weight:600;font-size:.9rem;color:var(--text);min-height:48px;
+}
+.rules summary::-webkit-details-marker{display:none}
+.rules summary .chev{color:var(--gold);transition:transform .25s ease}
+.rules[open] summary .chev{transform:rotate(180deg)}
+.rules-body{padding:0 var(--sp-3) var(--sp-3);color:var(--text-dim);font-size:.88rem;line-height:1.6}
+.rules-body ol{padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.rules-body b{color:var(--ivory-2);font-weight:600}
+
+/* ---------- Player setup ---------- */
+.players{display:flex;flex-direction:column;gap:var(--sp-2)}
+.player-row{display:flex;align-items:center;gap:var(--sp-2)}
+.player-seat{
+  width:34px;height:34px;flex:0 0 34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:700;font-size:1rem;
+  color:var(--gold);border:1px solid var(--line);background:var(--felt-2);
+}
+.player-input{
+  flex:1;min-height:var(--tap);
+  background:var(--felt-2);
+  border:1px solid var(--line-soft);
+  border-radius:var(--r-md);
+  padding:0 var(--sp-3);
+  color:var(--text);font-size:1rem;
+  transition:border-color .2s ease, background .2s ease;
+}
+.player-input::placeholder{color:#5d7059}
+.player-input:focus{outline:none;border-color:var(--gold);background:var(--felt-3)}
+.player-remove{
+  width:var(--tap);height:var(--tap);flex:0 0 var(--tap);
+  border-radius:var(--r-md);color:var(--text-dim);font-size:1.4rem;line-height:1;
+  display:flex;align-items:center;justify-content:center;
+}
+.player-remove:active{color:var(--red-bright)}
+.add-player{align-self:flex-start;margin-top:var(--sp-1)}
+.form-error{color:var(--red-bright);font-size:.85rem;min-height:1.2em;font-weight:500}
+
+/* ---------- Dealer / guesser pill ---------- */
+.role-card{
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  background:linear-gradient(160deg,var(--felt-3),var(--felt-2));
+  padding:var(--sp-4);
+  display:flex;flex-direction:column;gap:var(--sp-1);
+  box-shadow:var(--sh-pop), inset 0 1px 0 rgba(217,174,85,.12);
+  text-align:center;
+}
+.role-label{font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.role-name{
+  font-family:var(--display);font-weight:800;
+  font-size:clamp(2.3rem,11vw,3rem);color:var(--ivory);line-height:1.02;
+  word-break:break-word;
+}
+.role-sub{color:var(--text-dim);font-size:.9rem}
+.role-sub b{color:var(--ivory-2);font-weight:600}
+
+/* ---------- Deck meter ---------- */
+.deck-meter{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
+  padding:14px var(--sp-3);border:1px solid var(--line-soft);border-radius:var(--r-md);background:rgba(0,0,0,.18)}
+.deck-meter .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
+.deck-count{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--ivory)}
+.deck-count small{font-size:.85rem;color:var(--text-dim);font-family:var(--ui);font-weight:500}
+
+/* ---------- Discard pile ---------- */
+.discard-wrap{display:flex;flex-direction:column;gap:var(--sp-2)}
+.discard-wrap .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
+.discard-row{
+  display:flex;gap:8px;overflow-x:auto;padding:6px 2px 12px;
+  -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;
+}
+.discard-row::-webkit-scrollbar{height:5px}
+.discard-row::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
+.discard-empty{color:#5d7059;font-size:.9rem;font-style:italic;padding:6px 2px}
+.mini-card{
+  flex:0 0 auto;width:48px;height:67px;border-radius:7px;scroll-snap-align:start;
+  background:linear-gradient(160deg,var(--ivory),var(--ivory-2));
+  color:var(--ink);position:relative;box-shadow:0 4px 10px rgba(0,0,0,.4);
+  font-family:var(--display);font-weight:700;
+}
+.mini-card .mc-v{position:absolute;top:4px;left:6px;font-size:.95rem;line-height:1}
+.mini-card .mc-s{position:absolute;bottom:4px;right:6px;font-size:1rem;line-height:1}
+.mini-card.red{color:var(--red)}
+
+/* ---------- Value selector ---------- */
+.selector{display:flex;flex-direction:column;gap:var(--sp-3)}
+.value-grid{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+}
+.value-cell{
+  min-height:54px;border-radius:var(--r-sm);
+  background:var(--felt-2);border:1px solid var(--line-soft);
+  color:var(--text);font-family:var(--display);font-weight:700;font-size:1.3rem;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .1s ease, background .18s ease, border-color .18s ease, color .18s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.value-cell:active{transform:scale(.94)}
+.value-cell.selected{
+  background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+  color:#241803;border-color:var(--gold-bright);
+  box-shadow:0 6px 16px rgba(217,174,85,.35);
+}
+.value-cell:disabled{opacity:.28;color:var(--text-dim);cursor:default}
+.value-cell.was-guessed{
+  opacity:.4;border-style:dashed;text-decoration:line-through;text-decoration-color:var(--red);
+}
+
+/* ---------- Hint (higher / lower) ---------- */
+.hint{
+  text-align:center;border-radius:var(--r-lg);padding:var(--sp-4) var(--sp-3);
+  border:1px solid var(--line);background:linear-gradient(160deg,var(--felt-3),var(--felt-2));
+}
+.hint .hint-sub{color:var(--text-dim);font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.hint .hint-word{
+  font-family:var(--display);font-weight:800;font-size:clamp(2.8rem,16vw,4rem);
+  line-height:1;letter-spacing:.02em;margin-top:6px;
+  display:inline-flex;align-items:center;gap:.2em;
+}
+.hint.higher .hint-word{color:var(--gold-bright)}
+.hint.lower .hint-word{color:var(--red-bright)}
+.hint .arrow{font-size:.7em}
+.hint .prev-guess{margin-top:10px;color:var(--text-dim);font-size:.9rem}
+.hint .prev-guess b{color:var(--ivory-2)}
+
+/* ---------- Full card + flip ---------- */
+.card-stage{display:flex;justify-content:center;padding:var(--sp-2) 0;perspective:1400px}
+.card-flip{
+  position:relative;width:200px;height:288px;
+  transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  transition:transform .75s cubic-bezier(.3,1.2,.4,1);
+}
+.card-flip.down{transform:rotateY(180deg)}
+.card-face{
+  position:absolute;inset:0;border-radius:18px;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  overflow:hidden;box-shadow:var(--sh-card);
+}
+.card-face.front{
+  transform:rotateY(0deg);
+  background:linear-gradient(155deg,var(--ivory) 0%,var(--ivory-2) 100%);
+  color:var(--ink);
+  border:1px solid rgba(0,0,0,.15);
+}
+.card-face.back{
+  transform:rotateY(180deg);
+  background:
+    repeating-linear-gradient(45deg,rgba(217,174,85,.16) 0 7px,transparent 7px 14px),
+    repeating-linear-gradient(-45deg,rgba(217,174,85,.16) 0 7px,transparent 7px 14px),
+    linear-gradient(160deg,#1c4127,var(--felt-3));
+  border:1px solid var(--gold-deep);
+}
+.card-back-emblem{
+  position:absolute;inset:14px;border:2px solid var(--gold);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+.card-back-emblem span{font-size:3.4rem;color:var(--gold);opacity:.92}
+
+.card-corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1;font-family:var(--display);font-weight:700}
+.card-corner .cc-v{font-size:1.6rem}
+.card-corner .cc-s{font-size:1.3rem;margin-top:2px}
+.card-corner.tl{top:12px;left:14px}
+.card-corner.br{bottom:12px;right:14px;transform:rotate(180deg)}
+.card-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.card-center span{font-size:6.4rem;line-height:1}
+.card-face.red{color:var(--red)}
+.card-face.red .card-center span{color:var(--red)}
+
+/* ---------- Result banner ---------- */
+.banner{
+  text-align:center;border-radius:var(--r-lg);padding:var(--sp-4) var(--sp-3);
+  z-index:var(--z-banner);animation:banner-pop .5s cubic-bezier(.2,.9,.3,1.3) both;
+}
+.banner .b-eyebrow{font-size:.74rem;letter-spacing:.26em;text-transform:uppercase;font-weight:700}
+.banner .b-main{font-family:var(--display);font-weight:800;font-size:clamp(1.7rem,8vw,2.3rem);line-height:1.05;margin-top:6px}
+.banner .b-sub{font-size:.92rem;margin-top:8px;opacity:.85}
+.banner.win{
+  background:linear-gradient(160deg,rgba(217,174,85,.22),rgba(217,174,85,.06));
+  border:1px solid var(--gold);
+}
+.banner.win .b-eyebrow{color:var(--gold-bright)}
+.banner.win .b-main{color:var(--ivory)}
+.banner.win .b-sub{color:var(--gold-bright)}
+.banner.penalty{
+  background:linear-gradient(160deg,rgba(178,58,46,.26),rgba(178,58,46,.07));
+  border:1px solid var(--red);
+  animation:banner-pop .5s cubic-bezier(.2,.9,.3,1.3) both, banner-pulse 1.4s ease-in-out .5s 2;
+}
+.banner.penalty .b-eyebrow{color:var(--red-bright)}
+.banner.penalty .b-main{color:var(--ivory)}
+.banner.penalty .b-sub{color:var(--red-bright)}
+.drink-num{font-family:var(--display);font-size:1.15em;color:var(--gold-bright)}
+.banner.penalty .drink-num{color:var(--red-bright)}
+
+@keyframes banner-pop{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:none}}
+@keyframes banner-pulse{0%,100%{box-shadow:0 0 0 0 rgba(178,58,46,0)}50%{box-shadow:0 0 0 8px rgba(178,58,46,.18)}}
+
+/* ---------- Rotate / pass phone ---------- */
+.pass{text-align:center;display:flex;flex-direction:column;gap:var(--sp-3);align-items:center;justify-content:center;flex:1}
+.pass-chip{font-size:3.2rem}
+.pass .pass-label{color:var(--text-dim);letter-spacing:.2em;text-transform:uppercase;font-size:.82rem;font-weight:600}
+.pass .pass-name{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,13vw,3.6rem);color:var(--gold-bright);line-height:1.02;word-break:break-word}
+.pass .pass-note{color:var(--text-dim);font-size:.92rem;max-width:28ch}
+
+/* ---------- Game over ---------- */
+.gover{text-align:center;display:flex;flex-direction:column;gap:var(--sp-3);align-items:center;justify-content:center;flex:1}
+.gover .go-title{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,13vw,3.4rem);color:var(--ivory);line-height:1}
+.gover .go-sub{color:var(--text-dim);font-size:1rem;max-width:30ch}
+
+.center-block{display:flex;flex-direction:column;justify-content:center;flex:1;gap:var(--sp-4)}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion:reduce){
+  .screen{animation:none}
+  .card-flip{transition:none}
+  .banner,.banner.penalty{animation:none}
+  .btn:active,.value-cell:active{transform:none}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- SETUP -->
+  <section class="screen" data-screen="setup">
+    <header class="brand">
+      <span class="eyebrow">A drinking card game</span>
+      <h1 class="title">Screw <span class="amp">the</span> Dealer</h1>
+      <div class="brand-rule"></div>
+    </header>
+    <p class="subtitle">Guess the card. Miss twice and you drink the difference. Nail it and the dealer pays.</p>
+
+    <details class="rules">
+      <summary>How to play <span class="chev">▾</span></summary>
+      <div class="rules-body">
+        <ol>
+          <li>The <b>dealer</b> draws a card face-down and the <b>guesser</b> calls its value.</li>
+          <li><b>First call right:</b> the dealer drinks 5.</li>
+          <li><b>First call wrong:</b> the dealer says higher or lower.</li>
+          <li><b>Second call right:</b> the dealer drinks 3.</li>
+          <li><b>Second call wrong:</b> the guesser drinks the difference between the call and the card.</li>
+          <li>The card goes face-up to the discard row, then the deal passes left.</li>
+        </ol>
+      </div>
+    </details>
+
+    <div class="players" id="playerList"></div>
+    <button class="btn btn-secondary add-player" id="addPlayer" type="button">+ Add player</button>
+    <p class="form-error" id="setupError"></p>
+
+    <div class="actions">
+      <button class="btn btn-primary btn-lg btn-block" id="startBtn" type="button">Start game</button>
+    </div>
+  </section>
+
+  <!-- GAME / between rounds -->
+  <section class="screen" data-screen="game">
+    <div class="role-card">
+      <span class="role-label">Dealer</span>
+      <span class="role-name" id="gameDealer"></span>
+      <span class="role-sub">Guesser: <b id="gameGuesser"></b></span>
+    </div>
+
+    <div class="deck-meter">
+      <span class="label">Cards left</span>
+      <span class="deck-count"><span id="deckCount">52</span> <small>/ 52</small></span>
+    </div>
+
+    <div class="discard-wrap">
+      <span class="label">Discard</span>
+      <div class="discard-row" id="discardRow"></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary btn-lg btn-block" id="dealBtn" type="button">Deal a card</button>
+      <button class="btn btn-ghost btn-block" id="endBtn1" type="button">End game</button>
+    </div>
+  </section>
+
+  <!-- FIRST GUESS -->
+  <section class="screen" data-screen="firstGuess">
+    <div class="screen-head">
+      <span class="eyebrow">First call</span>
+      <h2 id="fgGuesser"></h2>
+    </div>
+    <p class="subtitle">Call the value of the face-down card. Right on the first try and the dealer drinks 5.</p>
+
+    <div class="selector">
+      <div class="value-grid" id="fgGrid"></div>
+      <div class="actions">
+        <button class="btn btn-primary btn-lg btn-block" id="fgSubmit" type="button" disabled>Lock in call</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECOND GUESS (higher / lower) -->
+  <section class="screen" data-screen="secondGuess">
+    <div class="hint" id="hintBox">
+      <span class="hint-sub">The dealer says</span>
+      <div class="hint-word"><span class="arrow" id="hintArrow"></span><span id="hintWord"></span></div>
+      <p class="prev-guess">You called <b id="hintPrev"></b>. Call again.</p>
+    </div>
+
+    <div class="selector">
+      <div class="value-grid" id="sgGrid"></div>
+      <div class="actions">
+        <button class="btn btn-primary btn-lg btn-block" id="sgSubmit" type="button" disabled>Lock in call</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="screen" data-screen="reveal">
+    <div class="card-stage">
+      <div class="card-flip" id="revealCard">
+        <div class="card-face back">
+          <div class="card-back-emblem"><span>♠</span></div>
+        </div>
+        <div class="card-face front" id="revealFront"></div>
+      </div>
+    </div>
+
+    <div class="banner" id="revealBanner"></div>
+
+    <div class="actions">
+      <button class="btn btn-primary btn-lg btn-block" id="nextBtn" type="button">Next round</button>
+    </div>
+  </section>
+
+  <!-- ROTATE / pass the phone -->
+  <section class="screen" data-screen="rotate">
+    <div class="pass">
+      <span class="pass-chip">🂠</span>
+      <span class="pass-label">Pass the phone to</span>
+      <span class="pass-name" id="rotateName"></span>
+      <p class="pass-note">They deal the next card. Don't let anyone peek.</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary btn-lg btn-block" id="readyBtn" type="button">Ready</button>
+    </div>
+  </section>
+
+  <!-- GAME OVER -->
+  <section class="screen" data-screen="gameOver">
+    <div class="gover">
+      <span class="pass-chip">♠</span>
+      <span class="eyebrow">Three decks down</span>
+      <h2 class="go-title">Last call</h2>
+      <p class="go-sub">The deck's been run three times over. Tab's closed — deal a fresh game when you're ready.</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary btn-lg btn-block" id="newGameBtn" type="button">New game</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============ GAME ENGINE ============ */
+  var SUITS = [
+    {key:'S', sym:'♠', red:false},
+    {key:'H', sym:'♥', red:true},
+    {key:'D', sym:'♦', red:true},
+    {key:'C', sym:'♣', red:false}
+  ];
+  // rank value 1..13 -> label
+  var LABELS = ['', 'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  var MAX_RESHUFFLES = 3;
+  var STORE_KEY = 'screwTheDealer.v1';
+
+  var prefersReducedMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var state = null;
+
+  function freshState(players){
+    return {
+      screen:'setup',
+      players:players,
+      dealerIndex:0,
+      deck:shuffle(buildDeck()),
+      discard:[],
+      reshuffles:0,
+      current:null,        // {value, suit}
+      firstGuess:null,     // rank value
+      hint:null,           // 'higher' | 'lower'
+      result:null          // {type, drinker, amount, ...}
+    };
+  }
+
+  function buildDeck(){
+    var d = [];
+    for(var s=0;s<SUITS.length;s++){
+      for(var v=1;v<=13;v++){ d.push({value:v, suit:s}); }
+    }
+    return d;
+  }
+
+  // Fisher-Yates
+  function shuffle(arr){
+    for(var i=arr.length-1;i>0;i--){
+      var j = Math.floor(Math.random()*(i+1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  function guesserIndex(){
+    return (state.dealerIndex + 1) % state.players.length;
+  }
+  function nextDealerIndex(){
+    return (state.dealerIndex + 1) % state.players.length;
+  }
+
+  function save(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+  function load(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return null;
+      var s = JSON.parse(raw);
+      if(!s || !Array.isArray(s.players) || s.players.length < 2) return null;
+      if(!Array.isArray(s.deck) || !Array.isArray(s.discard)) return null;
+      return s;
+    }catch(e){ return null; }
+  }
+  function clearSave(){
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+  }
+
+  function go(screen){
+    state.screen = screen;
+    save();
+    render();
+  }
+
+  function startGame(names){
+    state = freshState(names);
+    go('game');
+  }
+
+  // Draw the top card, handling exhaustion + reshuffle.
+  // Returns false if the game is over (3rd exhaustion).
+  function drawCard(){
+    if(state.deck.length === 0){
+      state.reshuffles++;
+      if(state.reshuffles >= MAX_RESHUFFLES){ return false; }
+      state.deck = shuffle(buildDeck());
+      state.discard = [];
+    }
+    state.current = state.deck.pop();
+    return true;
+  }
+
+  function deal(){
+    if(!drawCard()){ go('gameOver'); return; }
+    state.firstGuess = null;
+    state.hint = null;
+    state.result = null;
+    go('firstGuess');
+  }
+
+  function submitFirstGuess(rank){
+    var actual = state.current.value;
+    state.firstGuess = rank;
+    if(rank === actual){
+      state.result = {type:'dealer', amount:5, attempt:1};
+      go('reveal');
+    }else{
+      state.hint = actual > rank ? 'higher' : 'lower';
+      go('secondGuess');
+    }
+  }
+
+  function submitSecondGuess(rank){
+    var actual = state.current.value;
+    if(rank === actual){
+      state.result = {type:'dealer', amount:3, attempt:2};
+    }else{
+      // drink the difference between the call and the actual card
+      var amount = Math.abs(rank - actual);
+      state.result = {type:'guesser', amount:amount, attempt:2, guess:rank};
+    }
+    go('reveal');
+  }
+
+  // Move the revealed card to the discard pile (once), then show rotate.
+  function nextRound(){
+    state.discard.push(state.current);
+    state.current = null;
+    go('rotate');
+  }
+
+  function rotateReady(){
+    state.dealerIndex = nextDealerIndex();
+    go('game');
+  }
+
+  /* ============ UI / DOM LAYER ============ */
+  var screens = {};
+  document.querySelectorAll('.screen').forEach(function(el){
+    screens[el.getAttribute('data-screen')] = el;
+  });
+
+  function showScreen(name){
+    for(var k in screens){
+      screens[k].classList.toggle('active', k === name);
+    }
+    window.scrollTo(0,0);
+  }
+
+  function buzz(pattern){
+    if(navigator.vibrate){ try{ navigator.vibrate(pattern); }catch(e){} }
+  }
+
+  /* ----- Setup ----- */
+  var playerList = document.getElementById('playerList');
+  var setupError = document.getElementById('setupError');
+
+  function makePlayerRow(seat, value){
+    var row = document.createElement('div');
+    row.className = 'player-row';
+
+    var badge = document.createElement('div');
+    badge.className = 'player-seat';
+    badge.textContent = seat;
+
+    var input = document.createElement('input');
+    input.className = 'player-input';
+    input.type = 'text';
+    input.maxLength = 16;
+    input.autocomplete = 'off';
+    input.placeholder = 'Player ' + seat;
+    input.value = value || '';
+    input.addEventListener('input', function(){ setupError.textContent = ''; });
+
+    var remove = document.createElement('button');
+    remove.className = 'player-remove';
+    remove.type = 'button';
+    remove.setAttribute('aria-label', 'Remove player');
+    remove.textContent = '×';
+    remove.addEventListener('click', function(){
+      if(playerList.children.length <= 2){
+        setupError.textContent = 'You need at least two players.';
+        return;
+      }
+      row.remove();
+      renumberSeats();
+    });
+
+    row.appendChild(badge);
+    row.appendChild(input);
+    row.appendChild(remove);
+    return row;
+  }
+
+  function renumberSeats(){
+    var rows = playerList.children;
+    for(var i=0;i<rows.length;i++){
+      var badge = rows[i].querySelector('.player-seat');
+      var input = rows[i].querySelector('.player-input');
+      badge.textContent = (i+1);
+      input.placeholder = 'Player ' + (i+1);
+    }
+  }
+
+  function buildSetup(){
+    playerList.innerHTML = '';
+    playerList.appendChild(makePlayerRow(1,''));
+    playerList.appendChild(makePlayerRow(2,''));
+    setupError.textContent = '';
+  }
+
+  document.getElementById('addPlayer').addEventListener('click', function(){
+    if(playerList.children.length >= 8){
+      setupError.textContent = 'Eight players is the limit.';
+      return;
+    }
+    var seat = playerList.children.length + 1;
+    playerList.appendChild(makePlayerRow(seat,''));
+  });
+
+  document.getElementById('startBtn').addEventListener('click', function(){
+    var inputs = playerList.querySelectorAll('.player-input');
+    var names = [];
+    for(var i=0;i<inputs.length;i++){
+      var n = inputs[i].value.trim();
+      names.push(n || ('Player ' + (i+1)));
+    }
+    if(names.length < 2){
+      setupError.textContent = 'You need at least two players.';
+      return;
+    }
+    buzz([20]);
+    startGame(names);
+  });
+
+  /* ----- Card rendering ----- */
+  function suitOf(card){ return SUITS[card.suit]; }
+
+  function renderFullCard(container, card){
+    var s = suitOf(card);
+    var label = LABELS[card.value];
+    container.className = 'card-face front' + (s.red ? ' red' : '');
+    container.innerHTML =
+      '<div class="card-corner tl"><span class="cc-v">'+label+'</span><span class="cc-s">'+s.sym+'</span></div>' +
+      '<div class="card-center"><span>'+s.sym+'</span></div>' +
+      '<div class="card-corner br"><span class="cc-v">'+label+'</span><span class="cc-s">'+s.sym+'</span></div>';
+  }
+
+  function renderMiniCard(card){
+    var s = suitOf(card);
+    var el = document.createElement('div');
+    el.className = 'mini-card' + (s.red ? ' red' : '');
+    el.innerHTML = '<span class="mc-v">'+LABELS[card.value]+'</span><span class="mc-s">'+s.sym+'</span>';
+    return el;
+  }
+
+  /* ----- Value selector grids ----- */
+  function buildValueGrid(grid, opts){
+    grid.innerHTML = '';
+    opts = opts || {};
+    var selected = null;
+    for(var v=1;v<=13;v++){
+      var cell = document.createElement('button');
+      cell.type = 'button';
+      cell.className = 'value-cell';
+      cell.textContent = LABELS[v];
+      cell.dataset.value = v;
+      if(opts.exclude === v){
+        cell.classList.add('was-guessed');
+        cell.disabled = true;
+      }else{
+        cell.addEventListener('click', (function(cellEl, val){
+          return function(){
+            if(selected){ selected.classList.remove('selected'); }
+            selected = cellEl;
+            cellEl.classList.add('selected');
+            buzz([15]);
+            opts.onSelect(val);
+          };
+        })(cell, v));
+      }
+      grid.appendChild(cell);
+    }
+  }
+
+  /* ----- First guess screen ----- */
+  var fgSubmit = document.getElementById('fgSubmit');
+  var fgSelected = null;
+
+  function renderFirstGuess(){
+    document.getElementById('fgGuesser').textContent = state.players[guesserIndex()];
+    fgSelected = null;
+    fgSubmit.disabled = true;
+    fgSubmit.textContent = 'Lock in call';
+    buildValueGrid(document.getElementById('fgGrid'), {
+      onSelect:function(val){ fgSelected = val; fgSubmit.disabled = false; }
+    });
+  }
+  fgSubmit.addEventListener('click', function(){
+    if(fgSelected == null) return;
+    buzz([30]);
+    submitFirstGuess(fgSelected);
+  });
+
+  /* ----- Second guess screen ----- */
+  var sgSubmit = document.getElementById('sgSubmit');
+  var sgSelected = null;
+
+  function renderSecondGuess(){
+    var box = document.getElementById('hintBox');
+    box.className = 'hint ' + state.hint;
+    document.getElementById('hintWord').textContent = state.hint === 'higher' ? 'Higher' : 'Lower';
+    document.getElementById('hintArrow').textContent = state.hint === 'higher' ? '▲' : '▼';
+    document.getElementById('hintPrev').textContent = LABELS[state.firstGuess];
+    sgSelected = null;
+    sgSubmit.disabled = true;
+    buildValueGrid(document.getElementById('sgGrid'), {
+      exclude: state.firstGuess,
+      onSelect:function(val){ sgSelected = val; sgSubmit.disabled = false; }
+    });
+  }
+  sgSubmit.addEventListener('click', function(){
+    if(sgSelected == null) return;
+    buzz([30]);
+    submitSecondGuess(sgSelected);
+  });
+
+  /* ----- Reveal screen ----- */
+  function renderReveal(){
+    var card = state.current;
+    renderFullCard(document.getElementById('revealFront'), card);
+
+    var flip = document.getElementById('revealCard');
+    // Set the face-down state with no transition, then animate the flip to face-up.
+    flip.style.transition = 'none';
+    flip.classList.add('down');
+    void flip.offsetWidth; // commit the down state without animating into it
+    flip.style.transition = '';
+    if(prefersReducedMotion){
+      flip.classList.remove('down');
+    }else{
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){ flip.classList.remove('down'); });
+      });
+    }
+
+    var banner = document.getElementById('revealBanner');
+    var r = state.result;
+    var label = LABELS[card.value];
+    if(r.type === 'dealer'){
+      banner.className = 'banner win';
+      banner.innerHTML =
+        '<div class="b-eyebrow">'+(r.attempt===1?'Called it':'Caught it on two')+'</div>' +
+        '<div class="b-main">It was the '+label+'</div>' +
+        '<div class="b-sub">'+state.players[state.dealerIndex]+' drinks <span class="drink-num">'+r.amount+'</span></div>';
+      buzz([20,60,20]);
+    }else{
+      banner.className = 'banner penalty';
+      banner.innerHTML =
+        '<div class="b-eyebrow">Off by '+r.amount+'</div>' +
+        '<div class="b-main">It was the '+label+'</div>' +
+        '<div class="b-sub">'+state.players[guesserIndex()]+' drinks <span class="drink-num">'+r.amount+'</span></div>';
+      buzz([60,40,60]);
+    }
+  }
+
+  /* ----- Game (between rounds) ----- */
+  function renderGame(){
+    document.getElementById('gameDealer').textContent = state.players[state.dealerIndex];
+    document.getElementById('gameGuesser').textContent = state.players[guesserIndex()];
+    document.getElementById('deckCount').textContent = state.deck.length;
+
+    var row = document.getElementById('discardRow');
+    row.innerHTML = '';
+    if(state.discard.length === 0){
+      var empty = document.createElement('div');
+      empty.className = 'discard-empty';
+      empty.textContent = 'No cards played yet.';
+      row.appendChild(empty);
+    }else{
+      for(var i=0;i<state.discard.length;i++){
+        row.appendChild(renderMiniCard(state.discard[i]));
+      }
+      row.scrollLeft = row.scrollWidth;
+    }
+  }
+
+  document.getElementById('dealBtn').addEventListener('click', function(){ buzz([20]); deal(); });
+  document.getElementById('nextBtn').addEventListener('click', function(){ nextRound(); });
+  document.getElementById('readyBtn').addEventListener('click', function(){ buzz([20]); rotateReady(); });
+
+  function renderRotate(){
+    document.getElementById('rotateName').textContent = state.players[nextDealerIndex()];
+  }
+
+  function confirmEnd(){
+    if(window.confirm('End this game and return to setup?')){
+      clearSave();
+      buildSetup();
+      state = freshState(['','']); // placeholder; setup screen drives names
+      state.screen = 'setup';
+      showScreen('setup');
+    }
+  }
+  document.getElementById('endBtn1').addEventListener('click', confirmEnd);
+  document.getElementById('newGameBtn').addEventListener('click', function(){
+    clearSave();
+    buildSetup();
+    state = freshState(['','']);
+    state.screen = 'setup';
+    showScreen('setup');
+  });
+
+  /* ----- Master render ----- */
+  function render(){
+    showScreen(state.screen);
+    switch(state.screen){
+      case 'game': renderGame(); break;
+      case 'firstGuess': renderFirstGuess(); break;
+      case 'secondGuess': renderSecondGuess(); break;
+      case 'reveal': renderReveal(); break;
+      case 'rotate': renderRotate(); break;
+    }
+  }
+
+  /* ============ BOOT ============ */
+  function boot(){
+    var saved = load();
+    if(saved && saved.screen && saved.screen !== 'setup'){
+      state = saved;
+      // A reveal needs a current card to render; guard against corrupt state.
+      if((state.screen === 'reveal' || state.screen === 'firstGuess' || state.screen === 'secondGuess') && !state.current){
+        state.screen = 'game';
+      }
+      render();
+    }else{
+      buildSetup();
+      state = freshState(['','']);
+      state.screen = 'setup';
+      showScreen('setup');
+    }
+  }
+  boot();
+
+  /* ============ PWA ============ */
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+})();
+</script>
+</body>
+</html>
