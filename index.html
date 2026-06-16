@@ -223,25 +223,46 @@ input{font-family:inherit}
 .deck-count{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--ivory)}
 .deck-count small{font-size:.85rem;color:var(--text-dim);font-family:var(--ui);font-weight:500}
 
-/* ---------- Discard pile ---------- */
-.discard-wrap{display:flex;flex-direction:column;gap:var(--sp-2)}
-.discard-wrap .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
-.discard-row{
-  display:flex;gap:8px;overflow-x:auto;padding:6px 2px 12px;
-  -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;
+/* ---------- Played-card board (grouped by value) ---------- */
+.board-wrap{display:flex;flex-direction:column;gap:var(--sp-2)}
+.board-wrap .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
+.board{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:6px;
+  padding:6px 2px 4px;
 }
-.discard-row::-webkit-scrollbar{height:5px}
-.discard-row::-webkit-scrollbar-thumb{background:var(--line);border-radius:9px}
-.discard-empty{color:#5d7059;font-size:.9rem;font-style:italic;padding:6px 2px}
+.value-slot{
+  position:relative;
+  aspect-ratio:5/7;
+  border-radius:7px;
+  border:1px dashed var(--line-soft);
+  background:rgba(0,0,0,.16);
+  display:flex;align-items:center;justify-content:center;
+}
+.value-slot .slot-ghost{
+  font-family:var(--display);font-weight:700;font-size:1rem;
+  color:#3f5640;letter-spacing:.02em;
+}
+.value-slot.filled{border-style:solid;border-color:var(--line);background:transparent}
+.value-slot.filled .slot-ghost{display:none}
 .mini-card{
-  flex:0 0 auto;width:48px;height:67px;border-radius:7px;scroll-snap-align:start;
+  position:absolute;inset:0;border-radius:7px;
   background:linear-gradient(160deg,var(--ivory),var(--ivory-2));
-  color:var(--ink);position:relative;box-shadow:0 4px 10px rgba(0,0,0,.4);
+  color:var(--ink);box-shadow:0 3px 8px rgba(0,0,0,.4);
   font-family:var(--display);font-weight:700;
 }
-.mini-card .mc-v{position:absolute;top:4px;left:6px;font-size:.95rem;line-height:1}
-.mini-card .mc-s{position:absolute;bottom:4px;right:6px;font-size:1rem;line-height:1}
+.mini-card .mc-v{position:absolute;top:3px;left:5px;font-size:.9rem;line-height:1}
+.mini-card .mc-s{position:absolute;bottom:3px;right:5px;font-size:1rem;line-height:1}
 .mini-card.red{color:var(--red)}
+.slot-count{
+  position:absolute;bottom:-5px;right:-5px;z-index:5;
+  min-width:17px;height:17px;padding:0 4px;border-radius:9px;
+  background:var(--gold);color:#241803;
+  font-family:var(--ui);font-weight:700;font-size:.66rem;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 1px 3px rgba(0,0,0,.5);
+}
 
 /* ---------- Value selector ---------- */
 .selector{display:flex;flex-direction:column;gap:var(--sp-3)}
@@ -400,7 +421,7 @@ input{font-family:inherit}
           <li><b>First call wrong:</b> the dealer says higher or lower.</li>
           <li><b>Second call right:</b> the dealer drinks 3.</li>
           <li><b>Second call wrong:</b> the guesser drinks the difference between the call and the card.</li>
-          <li>The card goes face-up to the discard row, then the deal passes left.</li>
+          <li>The card goes face-up onto the board in its value's spot, then the deal passes left.</li>
         </ol>
       </div>
     </details>
@@ -427,9 +448,9 @@ input{font-family:inherit}
       <span class="deck-count"><span id="deckCount">52</span> <small>/ 52</small></span>
     </div>
 
-    <div class="discard-wrap">
-      <span class="label">Discard</span>
-      <div class="discard-row" id="discardRow"></div>
+    <div class="board-wrap">
+      <span class="label">The board</span>
+      <div class="board" id="board"></div>
     </div>
 
     <div class="actions">
@@ -897,18 +918,39 @@ input{font-family:inherit}
     document.getElementById('gameGuesser').textContent = state.players[guesserIndex()];
     document.getElementById('deckCount').textContent = state.deck.length;
 
-    var row = document.getElementById('discardRow');
-    row.innerHTML = '';
-    if(state.discard.length === 0){
-      var empty = document.createElement('div');
-      empty.className = 'discard-empty';
-      empty.textContent = 'No cards played yet.';
-      row.appendChild(empty);
-    }else{
-      for(var i=0;i<state.discard.length;i++){
-        row.appendChild(renderMiniCard(state.discard[i]));
+    // Lay played cards onto the board, grouped into one slot per value (A..K).
+    var board = document.getElementById('board');
+    board.innerHTML = '';
+    var byValue = {};
+    for(var i=0;i<state.discard.length;i++){
+      var c = state.discard[i];
+      (byValue[c.value] = byValue[c.value] || []).push(c);
+    }
+    for(var v=1;v<=13;v++){
+      var slot = document.createElement('div');
+      slot.className = 'value-slot';
+      var pile = byValue[v];
+      if(pile && pile.length){
+        slot.classList.add('filled');
+        for(var k=0;k<pile.length;k++){
+          var mc = renderMiniCard(pile[k]);
+          mc.style.transform = 'translate(' + (k*2) + 'px,' + (k*2) + 'px)';
+          mc.style.zIndex = k+1;
+          slot.appendChild(mc);
+        }
+        if(pile.length > 1){
+          var badge = document.createElement('span');
+          badge.className = 'slot-count';
+          badge.textContent = '×' + pile.length;
+          slot.appendChild(badge);
+        }
+      }else{
+        var ghost = document.createElement('span');
+        ghost.className = 'slot-ghost';
+        ghost.textContent = LABELS[v];
+        slot.appendChild(ghost);
       }
-      row.scrollLeft = row.scrollWidth;
+      board.appendChild(slot);
     }
   }
 
