@@ -391,6 +391,16 @@ input{font-family:inherit}
 
 .center-block{display:flex;flex-direction:column;justify-content:center;flex:1;gap:var(--sp-4)}
 
+/* ---------- The Tab ---------- */
+.tab-list{list-style:none;display:flex;flex-direction:column;gap:6px;padding:6px 2px 2px}
+.tab-row{display:flex;align-items:center;gap:var(--sp-2);padding:10px var(--sp-3);border:1px solid var(--line-soft);border-radius:var(--r-md);background:rgba(0,0,0,.18)}
+.tab-row--lead{border-color:var(--line);background:linear-gradient(160deg,rgba(217,174,85,.12),rgba(217,174,85,.03))}
+.tab-rank{font-family:var(--display);font-weight:700;color:var(--text-dim);font-size:.95rem;width:1.4em;text-align:center;flex:0 0 auto}
+.tab-row--lead .tab-rank{color:var(--gold)}
+.tab-name{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-count{font-family:var(--display);font-weight:700;font-size:1.2rem;color:var(--ivory)}
+.tab-row--lead .tab-count{color:var(--gold-bright)}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
   .screen{animation:none}
@@ -453,8 +463,14 @@ input{font-family:inherit}
       <div class="board" id="board"></div>
     </div>
 
+    <div class="board-wrap">
+      <span class="label">The tab</span>
+      <ol class="tab-list" id="tabList"></ol>
+    </div>
+
     <div class="actions">
       <button class="btn btn-primary btn-lg btn-block" id="dealBtn" type="button">Deal a card</button>
+      <button class="btn btn-ghost btn-block" id="undoBtn" type="button" hidden>Undo last round</button>
       <button class="btn btn-ghost btn-block" id="endBtn1" type="button">End game</button>
     </div>
   </section>
@@ -528,7 +544,8 @@ input{font-family:inherit}
       <span class="pass-chip">♠</span>
       <span class="eyebrow">Three decks down</span>
       <h2 class="go-title">Last call</h2>
-      <p class="go-sub">The deck's been run three times over. Tab's closed — deal a fresh game when you're ready.</p>
+      <p class="go-sub">The deck's been run three times over. Settle the tab below.</p>
+      <ol class="tab-list" id="goTab" style="width:100%;max-width:300px"></ol>
     </div>
     <div class="actions">
       <button class="btn btn-primary btn-lg btn-block" id="newGameBtn" type="button">New game</button>
@@ -569,7 +586,9 @@ input{font-family:inherit}
       current:null,        // {value, suit}
       firstGuess:null,     // rank value
       hint:null,           // 'higher' | 'lower'
-      result:null          // {type, drinker, amount, ...}
+      result:null,         // {type, drinker, amount, ...}
+      tally:players.map(function(){ return 0; }),
+      history:[]
     };
   }
 
@@ -597,6 +616,22 @@ input{font-family:inherit}
     return (state.dealerIndex + 1) % state.players.length;
   }
 
+  function snapshotState(){
+    var h = state.history; state.history = [];
+    var clone = JSON.parse(JSON.stringify(state));
+    state.history = h;
+    return clone;
+  }
+
+  function undoRound(){
+    if(!state.history || !state.history.length) return;
+    var prev = state.history.pop();
+    var hist = state.history;          // remaining history
+    state = prev;
+    state.history = hist;
+    go('game');
+  }
+
   function save(){
     try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
   }
@@ -607,6 +642,8 @@ input{font-family:inherit}
       var s = JSON.parse(raw);
       if(!s || !Array.isArray(s.players) || s.players.length < 2) return null;
       if(!Array.isArray(s.deck) || !Array.isArray(s.discard)) return null;
+      if(!Array.isArray(s.tally) || s.tally.length !== s.players.length){ s.tally = s.players.map(function(){ return 0; }); }
+      if(!Array.isArray(s.history)){ s.history = []; }
       return s;
     }catch(e){ return null; }
   }
@@ -639,7 +676,10 @@ input{font-family:inherit}
   }
 
   function deal(){
+    var snap = snapshotState();           // state before drawing; screen is 'game', current null
     if(!drawCard()){ go('gameOver'); return; }
+    state.history.push(snap);
+    if(state.history.length > 8){ state.history.shift(); }
     state.firstGuess = null;
     state.hint = null;
     state.result = null;
@@ -651,6 +691,9 @@ input{font-family:inherit}
     state.firstGuess = rank;
     if(rank === actual){
       state.result = {type:'dealer', amount:5, attempt:1};
+      state.tally[state.dealerIndex] += 5;
+      state.result.drinkerIndex = state.dealerIndex;
+      state.result.total = state.tally[state.dealerIndex];
       go('reveal');
     }else{
       state.hint = actual > rank ? 'higher' : 'lower';
@@ -662,10 +705,17 @@ input{font-family:inherit}
     var actual = state.current.value;
     if(rank === actual){
       state.result = {type:'dealer', amount:3, attempt:2};
+      state.tally[state.dealerIndex] += 3;
+      state.result.drinkerIndex = state.dealerIndex;
+      state.result.total = state.tally[state.dealerIndex];
     }else{
       // drink the difference between the call and the actual card
       var amount = Math.abs(rank - actual);
       state.result = {type:'guesser', amount:amount, attempt:2, guess:rank};
+      var gi = guesserIndex();
+      state.tally[gi] += amount;
+      state.result.drinkerIndex = gi;
+      state.result.total = state.tally[gi];
     }
     go('reveal');
   }
@@ -780,6 +830,11 @@ input{font-family:inherit}
     buzz([20]);
     startGame(names);
   });
+
+  /* ----- Utility ----- */
+  function escName(name){
+    return name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
 
   /* ----- Card rendering ----- */
   function suitOf(card){ return SUITS[card.suit]; }
@@ -900,14 +955,14 @@ input{font-family:inherit}
       banner.innerHTML =
         '<div class="b-eyebrow">'+(r.attempt===1?'Called it':'Caught it on two')+'</div>' +
         '<div class="b-main">It was the '+label+'</div>' +
-        '<div class="b-sub">'+state.players[state.dealerIndex]+' drinks <span class="drink-num">'+r.amount+'</span></div>';
+        '<div class="b-sub">'+escName(state.players[state.dealerIndex])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab</div>';
       buzz([20,60,20]);
     }else{
       banner.className = 'banner penalty';
       banner.innerHTML =
         '<div class="b-eyebrow">Off by '+r.amount+'</div>' +
         '<div class="b-main">It was the '+label+'</div>' +
-        '<div class="b-sub">'+state.players[guesserIndex()]+' drinks <span class="drink-num">'+r.amount+'</span></div>';
+        '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab</div>';
       buzz([60,40,60]);
     }
   }
@@ -953,9 +1008,58 @@ input{font-family:inherit}
       }
       board.appendChild(slot);
     }
+
+    document.getElementById('undoBtn').hidden = !(state.history && state.history.length);
+    renderTab();
+  }
+
+  /* ----- The Tab ----- */
+  function buildTabRows(listEl){
+    listEl.innerHTML = '';
+    var indices = [];
+    for(var i=0;i<state.players.length;i++){ indices.push(i); }
+    // sort descending by tally, preserving seat order for ties
+    indices.sort(function(a,b){ return state.tally[b] - state.tally[a]; });
+    var maxVal = state.tally[indices[0]];
+    var rank = 1;
+    for(var n=0;n<indices.length;n++){
+      var idx = indices[n];
+      var isLead = maxVal > 0 && state.tally[idx] === maxVal;
+      var li = document.createElement('li');
+      li.className = 'tab-row' + (isLead ? ' tab-row--lead' : '');
+
+      var rankEl = document.createElement('span');
+      rankEl.className = 'tab-rank';
+      rankEl.textContent = rank;
+
+      var nameEl = document.createElement('span');
+      nameEl.className = 'tab-name';
+      nameEl.textContent = state.players[idx];
+
+      var countEl = document.createElement('span');
+      countEl.className = 'tab-count';
+      countEl.textContent = (isLead ? '👑 ' : '') + state.tally[idx];
+
+      li.appendChild(rankEl);
+      li.appendChild(nameEl);
+      li.appendChild(countEl);
+      listEl.appendChild(li);
+      rank++;
+    }
+  }
+
+  function renderTab(){
+    var listEl = document.getElementById('tabList');
+    if(listEl) buildTabRows(listEl);
+  }
+
+  function renderGameOver(){
+    var listEl = document.getElementById('goTab');
+    if(listEl) buildTabRows(listEl);
   }
 
   document.getElementById('dealBtn').addEventListener('click', function(){ buzz([20]); deal(); });
+  document.getElementById('undoBtn').addEventListener('click', function(){ buzz([20]); undoRound(); });
   document.getElementById('nextBtn').addEventListener('click', function(){ nextRound(); });
   document.getElementById('readyBtn').addEventListener('click', function(){ buzz([20]); rotateReady(); });
 
@@ -990,6 +1094,7 @@ input{font-family:inherit}
       case 'secondGuess': renderSecondGuess(); break;
       case 'reveal': renderReveal(); break;
       case 'rotate': renderRotate(); break;
+      case 'gameOver': renderGameOver(); break;
     }
   }
 
