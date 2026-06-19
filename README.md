@@ -18,9 +18,8 @@ players.
 - **The entire app lives in `index.html`** — markup, styles (`<style>`), and game
   logic (one IIFE in `<script>`). `manifest.json` and `sw.js` support PWA
   install/offline.
-- **Deployment is GitHub Pages served directly from the `claude/screw-dealer-pwa-yer1cz`
-  branch.** Pushing to that branch publishes the live site. There is no CI and no
-  separate deploy step.
+- **Deployment is GitHub Pages served directly from the `main` branch.** Pushing
+  to `main` publishes the live site. There is no CI and no separate deploy step.
 - **To change game behaviour or UI, edit `index.html`.** Keep the game-logic
   values and the user-facing copy in sync (see "Gotchas").
 - **Test by opening `index.html` in a browser.** No server is required for the
@@ -125,15 +124,14 @@ No install needed.
 
 ## Deployment
 
-- **GitHub Pages serves the live site directly from the
-  `claude/screw-dealer-pwa-yer1cz` branch.** A push to that branch publishes;
-  Pages typically rebuilds within a minute or two.
+- **GitHub Pages serves the live site directly from the `main` branch**, which is
+  also the repository's default branch. A push to `main` publishes; Pages
+  typically rebuilds within a minute or two.
 - When changing app files, **bump the `CACHE` version string in `sw.js`** so the
   service worker invalidates old caches and clients receive the update instead of
   serving stale assets.
-- ⚠️ The `main` branch and this Pages branch have **diverged**; this branch is the
-  one that is actually deployed and is generally more complete. Make user-facing
-  changes here (or ensure they reach here) so they go live.
+- Work directly on `main` (or via short-lived branches merged into it). There is
+  no separate deploy or staging branch to keep in sync.
 
 ---
 
