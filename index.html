@@ -266,27 +266,33 @@ input{font-family:inherit}
 
 /* ---------- Value selector ---------- */
 .selector{display:flex;flex-direction:column;gap:var(--sp-3)}
+.selector-note{color:var(--text-dim);font-size:.78rem;text-align:center;letter-spacing:.02em}
+.selector-note .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);vertical-align:middle;margin:0 4px 0 0}
 .value-grid{
   display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
 }
 .value-cell{
-  min-height:54px;border-radius:var(--r-sm);
+  min-height:62px;border-radius:var(--r-sm);
   background:var(--felt-2);border:1px solid var(--line-soft);
-  color:var(--text);font-family:var(--display);font-weight:700;font-size:1.3rem;
-  display:flex;align-items:center;justify-content:center;
+  color:var(--text);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
   transition:transform .1s ease, background .18s ease, border-color .18s ease, color .18s ease;
   -webkit-tap-highlight-color:transparent;
 }
+.value-cell .vc-rank{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1}
 .value-cell:active{transform:scale(.94)}
 .value-cell.selected{
   background:linear-gradient(180deg,var(--gold-bright),var(--gold));
   color:#241803;border-color:var(--gold-bright);
   box-shadow:0 6px 16px rgba(217,174,85,.35);
 }
-.value-cell:disabled{opacity:.28;color:var(--text-dim);cursor:default}
-.value-cell.was-guessed{
-  opacity:.4;border-style:dashed;text-decoration:line-through;text-decoration-color:var(--red);
-}
+.pips{display:flex;gap:3px;align-items:center}
+.pip{width:5px;height:5px;border-radius:50%;background:var(--gold);box-shadow:inset 0 0 0 1px rgba(0,0,0,.25)}
+.pip.spent{background:transparent;border:1px solid var(--line-soft);box-shadow:none}
+.value-cell.selected .pip{background:#241803}
+.value-cell.selected .pip.spent{background:transparent;border-color:rgba(36,24,3,.45)}
+.value-cell.out{opacity:.32;cursor:default;border-style:dashed}
+.value-cell.out .vc-rank{text-decoration:line-through;text-decoration-color:var(--red);color:var(--text-dim)}
 
 /* ---------- Hint (higher / lower) ---------- */
 .hint{
@@ -485,6 +491,7 @@ input{font-family:inherit}
 
     <div class="selector">
       <div class="value-grid" id="fgGrid"></div>
+      <p class="selector-note"><span class="dot"></span>Dots show how many of each card are still live.</p>
       <div class="actions">
         <button class="btn btn-primary btn-lg btn-block" id="fgSubmit" type="button" disabled>Lock in call</button>
       </div>
@@ -501,6 +508,7 @@ input{font-family:inherit}
 
     <div class="selector">
       <div class="value-grid" id="sgGrid"></div>
+      <p class="selector-note"><span class="dot"></span>Dots show how many of each card are still live.</p>
       <div class="actions">
         <button class="btn btn-primary btn-lg btn-block" id="sgSubmit" type="button" disabled>Lock in call</button>
       </div>
@@ -567,6 +575,7 @@ input{font-family:inherit}
   ];
   // rank value 1..13 -> label
   var LABELS = ['', 'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+  var RANK_NAMES = ['', 'Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Jack','Queen','King'];
   var MAX_RESHUFFLES = 3;
   var STORE_KEY = 'screwTheDealer.v1';
 
@@ -614,6 +623,19 @@ input{font-family:inherit}
   }
   function nextDealerIndex(){
     return (state.dealerIndex + 1) % state.players.length;
+  }
+
+  function discardCounts(){
+    var counts = [];
+    for(var v=0;v<=13;v++){ counts[v] = 0; }
+    for(var i=0;i<state.discard.length;i++){ counts[state.discard[i].value]++; }
+    return counts;
+  }
+  function liveCounts(){
+    var dc = discardCounts();
+    var live = [];
+    for(var v=0;v<=13;v++){ live[v] = 4 - dc[v]; }
+    return live;
   }
 
   function snapshotState(){
@@ -860,15 +882,45 @@ input{font-family:inherit}
   function buildValueGrid(grid, opts){
     grid.innerHTML = '';
     opts = opts || {};
+    var counts = opts.counts || null;
     var selected = null;
     for(var v=1;v<=13;v++){
+      var live = counts ? counts[v] : 4;
+      var spent = live <= 0;
+      var ruled = !!(opts.ruledOut && opts.ruledOut(v));
+      var out = spent || ruled;
+
       var cell = document.createElement('button');
       cell.type = 'button';
-      cell.className = 'value-cell';
-      cell.textContent = LABELS[v];
+      cell.className = 'value-cell' + (out ? ' out' : '');
       cell.dataset.value = v;
-      if(opts.exclude === v){
-        cell.classList.add('was-guessed');
+
+      var rank = document.createElement('span');
+      rank.className = 'vc-rank';
+      rank.textContent = LABELS[v];
+      cell.appendChild(rank);
+
+      if(counts){
+        var pips = document.createElement('span');
+        pips.className = 'pips';
+        pips.setAttribute('aria-hidden','true');
+        for(var p=0;p<4;p++){
+          var pip = document.createElement('span');
+          pip.className = 'pip' + (p < live ? '' : ' spent');
+          pips.appendChild(pip);
+        }
+        cell.appendChild(pips);
+      }
+
+      var name = RANK_NAMES[v];
+      var aria;
+      if(spent){ aria = name + ', none left'; }
+      else if(ruled){ aria = name + ', ruled out'; }
+      else if(counts){ aria = name + ', ' + live + ' of 4 left'; }
+      else { aria = name; }
+      cell.setAttribute('aria-label', aria);
+
+      if(out){
         cell.disabled = true;
       }else{
         cell.addEventListener('click', (function(cellEl, val){
@@ -895,6 +947,7 @@ input{font-family:inherit}
     fgSubmit.disabled = true;
     fgSubmit.textContent = 'Lock in call';
     buildValueGrid(document.getElementById('fgGrid'), {
+      counts: liveCounts(),
       onSelect:function(val){ fgSelected = val; fgSubmit.disabled = false; }
     });
   }
@@ -916,8 +969,11 @@ input{font-family:inherit}
     document.getElementById('hintPrev').textContent = LABELS[state.firstGuess];
     sgSelected = null;
     sgSubmit.disabled = true;
+    var fg = state.firstGuess;
+    var hint = state.hint;
     buildValueGrid(document.getElementById('sgGrid'), {
-      exclude: state.firstGuess,
+      counts: liveCounts(),
+      ruledOut: function(v){ return hint === 'higher' ? v <= fg : v >= fg; },
       onSelect:function(val){ sgSelected = val; sgSubmit.disabled = false; }
     });
   }
