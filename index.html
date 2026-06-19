@@ -389,17 +389,17 @@ input{font-family:inherit}
       <h1 class="title">Screw <span class="amp">the</span> Dealer</h1>
       <div class="brand-rule"></div>
     </header>
-    <p class="subtitle">Guess the card. Miss twice and you drink the difference. Nail it and the dealer pays.</p>
+    <p class="subtitle">Guess the card. Miss twice and you drink 1. Nail it and the dealer pays.</p>
 
     <details class="rules">
       <summary>How to play <span class="chev">▾</span></summary>
       <div class="rules-body">
         <ol>
           <li>The <b>dealer</b> draws a card face-down and the <b>guesser</b> calls its value.</li>
-          <li><b>First call right:</b> the dealer drinks 5.</li>
+          <li><b>First call right:</b> the dealer drinks 4.</li>
           <li><b>First call wrong:</b> the dealer says higher or lower.</li>
-          <li><b>Second call right:</b> the dealer drinks 3.</li>
-          <li><b>Second call wrong:</b> the guesser drinks the difference between the call and the card.</li>
+          <li><b>Second call right:</b> the dealer drinks 2.</li>
+          <li><b>Second call wrong:</b> the guesser drinks 1.</li>
           <li>The card goes face-up to the discard row, then the deal passes left.</li>
         </ol>
       </div>
@@ -444,7 +444,7 @@ input{font-family:inherit}
       <span class="eyebrow">First call</span>
       <h2 id="fgGuesser"></h2>
     </div>
-    <p class="subtitle">Call the value of the face-down card. Right on the first try and the dealer drinks 5.</p>
+    <p class="subtitle">Call the value of the face-down card. Right on the first try and the dealer drinks 4.</p>
 
     <div class="selector">
       <div class="value-grid" id="fgGrid"></div>
@@ -629,7 +629,7 @@ input{font-family:inherit}
     var actual = state.current.value;
     state.firstGuess = rank;
     if(rank === actual){
-      state.result = {type:'dealer', amount:5, attempt:1};
+      state.result = {type:'dealer', amount:4, attempt:1};
       go('reveal');
     }else{
       state.hint = actual > rank ? 'higher' : 'lower';
@@ -640,11 +640,9 @@ input{font-family:inherit}
   function submitSecondGuess(rank){
     var actual = state.current.value;
     if(rank === actual){
-      state.result = {type:'dealer', amount:3, attempt:2};
+      state.result = {type:'dealer', amount:2, attempt:2};
     }else{
-      // drink the difference between the call and the actual card
-      var amount = Math.abs(rank - actual);
-      state.result = {type:'guesser', amount:amount, attempt:2, guess:rank};
+      state.result = {type:'guesser', amount:1, attempt:2, guess:rank};
     }
     go('reveal');
   }
@@ -884,7 +882,7 @@ input{font-family:inherit}
     }else{
       banner.className = 'banner penalty';
       banner.innerHTML =
-        '<div class="b-eyebrow">Off by '+r.amount+'</div>' +
+        '<div class="b-eyebrow">Missed it</div>' +
         '<div class="b-main">It was the '+label+'</div>' +
         '<div class="b-sub">'+state.players[guesserIndex()]+' drinks <span class="drink-num">'+r.amount+'</span></div>';
       buzz([60,40,60]);
