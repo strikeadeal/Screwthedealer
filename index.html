@@ -216,6 +216,11 @@ input{font-family:inherit}
 .role-sub{color:var(--text-dim);font-size:.9rem}
 .role-sub b{color:var(--ivory-2);font-weight:600}
 
+/* ---------- Miss meter ---------- */
+.miss-meter{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;min-height:14px}
+.miss-dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--line);background:transparent;transition:background .2s ease,border-color .2s ease}
+.miss-dot.on{background:var(--gold);border-color:var(--gold-bright);box-shadow:0 0 5px rgba(217,174,85,.5)}
+
 /* ---------- Deck meter ---------- */
 .deck-meter{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
   padding:14px var(--sp-3);border:1px solid var(--line-soft);border-radius:var(--r-md);background:rgba(0,0,0,.18)}
@@ -479,7 +484,8 @@ input{font-family:inherit}
           <li><b>First call wrong:</b> the dealer says higher or lower.</li>
           <li><b>Second call right:</b> the dealer drinks 2.</li>
           <li><b>Second call wrong:</b> the guesser drinks 1.</li>
-          <li>The card goes face-up onto the board in its value's spot, then the deal passes left.</li>
+          <li>The card goes face-up onto the board, and the <b>guess passes left</b> to the next player.</li>
+          <li><b>Three missed rounds in a row:</b> a new dealer takes over.</li>
         </ol>
       </div>
     </details>
@@ -499,6 +505,11 @@ input{font-family:inherit}
       <span class="role-label">Dealer</span>
       <span class="role-name" id="gameDealer"></span>
       <span class="role-sub">Guesser: <b id="gameGuesser"></b></span>
+      <div class="miss-meter" id="missMeter">
+        <span class="miss-dot" id="missDot1"></span>
+        <span class="miss-dot" id="missDot2"></span>
+        <span class="miss-dot" id="missDot3"></span>
+      </div>
     </div>
 
     <div class="deck-meter">
@@ -592,9 +603,9 @@ input{font-family:inherit}
   <section class="screen" data-screen="rotate">
     <div class="pass">
       <span class="pass-chip">🂠</span>
-      <span class="pass-label">Pass the phone to</span>
+      <span class="pass-label" id="rotateLabel">Pass the phone to</span>
       <span class="pass-name" id="rotateName"></span>
-      <p class="pass-note">They deal the next card. Don't let anyone peek.</p>
+      <p class="pass-note" id="rotateNote">Don't let anyone peek.</p>
     </div>
     <div class="actions">
       <button class="btn btn-primary btn-lg btn-block" id="readyBtn" type="button">Ready</button>
@@ -651,6 +662,8 @@ input{font-family:inherit}
       screen:'setup',
       players:players,
       dealerIndex:0,
+      guesser:1,           // index of current guesser (dealer's left at start)
+      missStreak:0,        // consecutive rounds the guesser missed both calls
       deck:shuffle(buildDeck()),
       discard:[],
       reshuffles:0,
@@ -681,10 +694,19 @@ input{font-family:inherit}
   }
 
   function guesserIndex(){
-    return (state.dealerIndex + 1) % state.players.length;
+    return state.guesser;
   }
   function nextDealerIndex(){
     return (state.dealerIndex + 1) % state.players.length;
+  }
+  function nextGuesserIndex(){
+    var n = state.players.length;
+    var next = (state.guesser + 1) % n;
+    if(next === state.dealerIndex){ next = (next + 1) % n; }
+    return next;
+  }
+  function dealerWillChange(){
+    return state.missStreak >= 3;
   }
 
   function discardCounts(){
@@ -728,6 +750,8 @@ input{font-family:inherit}
       if(!Array.isArray(s.deck) || !Array.isArray(s.discard)) return null;
       if(!Array.isArray(s.tally) || s.tally.length !== s.players.length){ s.tally = s.players.map(function(){ return 0; }); }
       if(!Array.isArray(s.history)){ s.history = []; }
+      if(typeof s.guesser !== 'number'){ s.guesser = (s.dealerIndex + 1) % s.players.length; }
+      if(typeof s.missStreak !== 'number'){ s.missStreak = 0; }
       return s;
     }catch(e){ return null; }
   }
@@ -774,6 +798,7 @@ input{font-family:inherit}
     var actual = state.current.value;
     state.firstGuess = rank;
     if(rank === actual){
+      state.missStreak = 0;
       state.result = {type:'dealer', amount:4, attempt:1};
       state.tally[state.dealerIndex] += 4;
       state.result.drinkerIndex = state.dealerIndex;
@@ -788,11 +813,13 @@ input{font-family:inherit}
   function submitSecondGuess(rank){
     var actual = state.current.value;
     if(rank === actual){
+      state.missStreak = 0;
       state.result = {type:'dealer', amount:2, attempt:2};
       state.tally[state.dealerIndex] += 2;
       state.result.drinkerIndex = state.dealerIndex;
       state.result.total = state.tally[state.dealerIndex];
     }else{
+      state.missStreak++;
       var amount = 1;
       state.result = {type:'guesser', amount:amount, attempt:2, guess:rank};
       var gi = guesserIndex();
@@ -811,7 +838,14 @@ input{font-family:inherit}
   }
 
   function rotateReady(){
-    state.dealerIndex = nextDealerIndex();
+    var n = state.players.length;
+    if(dealerWillChange()){
+      state.dealerIndex = nextDealerIndex();
+      state.missStreak = 0;
+      state.guesser = (state.dealerIndex + 1) % n;
+    }else{
+      state.guesser = nextGuesserIndex();
+    }
     go('game');
   }
 
@@ -1065,11 +1099,13 @@ input{font-family:inherit}
         '<div class="b-sub">'+escName(state.players[state.dealerIndex])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab</div>';
       buzz([20,60,20]);
     }else{
+      var streak = state.missStreak || 0;
+      var streakNote = streak >= 3 ? ' · deal passes next' : (streak > 1 ? ' · ' + streak + ' in a row' : '');
       banner.className = 'banner penalty';
       banner.innerHTML =
         '<div class="b-eyebrow">Missed it</div>' +
         '<div class="b-main">It was the '+label+'</div>' +
-        '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab</div>';
+        '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab'+escName(streakNote)+'</div>';
       buzz([60,40,60]);
     }
   }
@@ -1118,6 +1154,12 @@ input{font-family:inherit}
 
     // Lay out a fixed slot for every value A..K in rank order.
     buildBoard(document.getElementById('board'));
+
+    // Miss meter: fill N of 3 dots based on missStreak.
+    var streak = state.missStreak || 0;
+    document.getElementById('missDot1').className = 'miss-dot' + (streak >= 1 ? ' on' : '');
+    document.getElementById('missDot2').className = 'miss-dot' + (streak >= 2 ? ' on' : '');
+    document.getElementById('missDot3').className = 'miss-dot' + (streak >= 3 ? ' on' : '');
 
     document.getElementById('undoBtn').hidden = !(state.history && state.history.length);
     renderTab();
@@ -1209,7 +1251,22 @@ input{font-family:inherit}
   document.getElementById('readyBtn').addEventListener('click', function(){ buzz([20]); rotateReady(); });
 
   function renderRotate(){
-    document.getElementById('rotateName').textContent = state.players[nextDealerIndex()];
+    var n = state.players.length;
+    var labelEl = document.getElementById('rotateLabel');
+    var nameEl = document.getElementById('rotateName');
+    var noteEl = document.getElementById('rotateNote');
+    if(dealerWillChange()){
+      var newDealerIdx = nextDealerIndex();
+      var newGuesserIdx = (newDealerIdx + 1) % n;
+      labelEl.textContent = 'New dealer';
+      nameEl.textContent = state.players[newDealerIdx];
+      noteEl.textContent = 'Three misses in a row — the deal passes left. ' + state.players[newGuesserIdx] + ' calls next.';
+    }else{
+      var nextGuesserIdx = nextGuesserIndex();
+      labelEl.textContent = 'Pass the phone to';
+      nameEl.textContent = state.players[state.dealerIndex];
+      noteEl.textContent = "Same dealer. " + state.players[nextGuesserIdx] + " calls the next card. Don't let anyone peek.";
+    }
   }
 
   function confirmEnd(){
