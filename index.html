@@ -452,6 +452,174 @@ input{font-family:inherit}
   to{transform:translate(0,0) scale(1) rotate(0deg);opacity:1}
 }
 
+/* ---------- Sound toggle button ---------- */
+.sound-toggle{
+  position:fixed;
+  top:calc(env(safe-area-inset-top) + 10px);
+  right:calc(env(safe-area-inset-right) + 10px);
+  z-index:8;
+  width:44px;height:44px;
+  border-radius:50%;
+  background:rgba(13,31,15,.72);
+  border:1px solid var(--line);
+  color:var(--gold);
+  font-size:1.35rem;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  transition:background .18s ease, color .18s ease;
+}
+.sound-toggle:active{background:var(--felt-3)}
+.sound-toggle[aria-pressed="true"]{color:var(--gold-bright)}
+.sound-toggle[aria-pressed="false"]{color:var(--text-dim)}
+
+/* ---------- Focus-visible ring ---------- */
+.btn:focus-visible,
+.value-cell:focus-visible,
+.tab-name-editable:focus-visible,
+.sound-toggle:focus-visible,
+summary:focus-visible,
+.player-remove:focus-visible{
+  outline:2px solid var(--gold-bright);
+  outline-offset:2px;
+}
+
+/* ---------- Editable tab name affordance ---------- */
+.tab-name-editable{
+  cursor:pointer;
+  border-bottom:1px dashed rgba(217,174,85,.4);
+  border-radius:0;
+  padding-bottom:1px;
+}
+.tab-name-editable:hover{border-bottom-color:var(--gold)}
+.tab-name-inline-input{
+  flex:1;
+  background:var(--felt-2);
+  border:1px solid var(--gold);
+  border-radius:var(--r-sm);
+  color:var(--text);
+  font-size:.95rem;
+  font-family:var(--ui);
+  font-weight:600;
+  padding:2px 8px;
+  min-height:0;
+  outline:none;
+  max-width:100%;
+}
+.tab-add-player{
+  margin-top:6px;
+  font-size:.85rem;
+  color:var(--gold);
+  font-weight:600;
+  cursor:pointer;
+  background:transparent;
+  border:1px dashed rgba(217,174,85,.35);
+  border-radius:var(--r-md);
+  padding:8px var(--sp-3);
+  width:100%;
+  text-align:left;
+  min-height:var(--tap);
+  transition:background .15s ease, border-color .15s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.tab-add-player:hover{background:rgba(217,174,85,.07);border-color:var(--gold)}
+.tab-add-msg{
+  font-size:.82rem;
+  color:var(--text-dim);
+  margin-top:4px;
+  padding:0 var(--sp-3);
+}
+
+/* ---------- Celebration overlay & chip burst ---------- */
+.celeb-overlay{
+  position:fixed;inset:0;
+  z-index:50;
+  pointer-events:none;
+  overflow:hidden;
+}
+
+/* Gold glow behind card on dealer win */
+.celeb-glow{
+  position:fixed;
+  left:50%;top:35%;
+  transform:translate(-50%,-50%);
+  width:340px;height:340px;
+  border-radius:50%;
+  background:radial-gradient(ellipse at center, rgba(217,174,85,.52) 0%, rgba(217,174,85,.0) 70%);
+  pointer-events:none;
+  animation:celeb-glow-in .45s ease both;
+}
+@keyframes celeb-glow-in{
+  from{opacity:0;transform:translate(-50%,-50%) scale(.4)}
+  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+
+/* Chip particle */
+.chip{
+  position:fixed;
+  left:50%;top:38%;
+  width:20px;height:20px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, var(--gold-bright), var(--gold-deep));
+  border:2px solid var(--gold-bright);
+  box-shadow:0 0 6px rgba(217,174,85,.6);
+  transform-origin:center center;
+  pointer-events:none;
+  animation:chip-burst .9s cubic-bezier(.2,1.3,.5,1) both;
+}
+.chip-lg{width:26px;height:26px}
+@keyframes chip-burst{
+  0%{transform:translate(-50%,-50%) translate(0,0) scale(0) rotate(0deg);opacity:0}
+  15%{opacity:1}
+  100%{transform:translate(-50%,-50%) translate(calc(var(--dx)*1px),calc(var(--dy)*1px)) scale(1) rotate(calc(var(--rot)*1deg));opacity:0}
+}
+
+/* SCREWED stamp */
+.screwed-stamp{
+  position:fixed;
+  left:50%;top:42%;
+  transform:translate(-50%,-50%) rotate(-14deg) scale(0);
+  font-family:var(--display);
+  font-weight:800;
+  font-size:clamp(2.6rem,12vw,3.6rem);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--gold-bright);
+  text-shadow:0 0 18px rgba(217,174,85,.55), 2px 2px 0 rgba(0,0,0,.5);
+  border:4px solid var(--gold);
+  border-radius:8px;
+  padding:6px 20px;
+  white-space:nowrap;
+  pointer-events:none;
+  animation:stamp-in .35s cubic-bezier(.2,1.4,.4,1) .22s both;
+  z-index:55;
+}
+.screwed-stamp.stamp-lg{
+  font-size:clamp(3rem,14vw,4.2rem);
+  border-width:5px;
+}
+@keyframes stamp-in{
+  from{transform:translate(-50%,-50%) rotate(-14deg) scale(2.2);opacity:0}
+  to{transform:translate(-50%,-50%) rotate(-14deg) scale(1);opacity:1}
+}
+
+/* Red penalty vignette */
+.penalty-vignette{
+  position:fixed;inset:0;
+  border-radius:0;
+  box-shadow:inset 0 0 80px 20px rgba(178,58,46,.55);
+  pointer-events:none;
+  animation:vignette-pulse .9s ease-out both;
+  z-index:52;
+}
+@keyframes vignette-pulse{
+  0%{opacity:0}
+  30%{opacity:1}
+  100%{opacity:0}
+}
+
 /* ---------- Reduced motion ---------- */
 @media (prefers-reduced-motion:reduce){
   .screen{animation:none}
@@ -460,6 +628,10 @@ input{font-family:inherit}
   .btn:active,.value-cell:active{transform:none}
   .deal-overlay{display:none}
   .deal-card{animation:none}
+  .chip{animation:none;display:none}
+  .celeb-glow{animation:none;opacity:0;display:none}
+  .penalty-vignette{animation:none;display:none}
+  .screwed-stamp{animation:none;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
 }
 </style>
 </head>
@@ -625,6 +797,9 @@ input{font-family:inherit}
       <button class="btn btn-primary btn-lg btn-block" id="newGameBtn" type="button">New game</button>
     </div>
   </section>
+
+  <!-- SOUND TOGGLE -->
+  <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true" aria-label="Sound on">🔊</button>
 
   <!-- DEAL OVERLAY -->
   <div class="deal-overlay" id="dealOverlay">
@@ -866,6 +1041,258 @@ input{font-family:inherit}
     if(navigator.vibrate){ try{ navigator.vibrate(pattern); }catch(e){} }
   }
 
+  /* ============ AUDIO MODULE ============ */
+  var MUTE_KEY = 'screwTheDealer.muted';
+  var _muted = false;
+  (function(){
+    try{
+      var raw = localStorage.getItem(MUTE_KEY);
+      _muted = (raw === 'true');
+    }catch(e){ _muted = false; }
+  })();
+
+  function saveMute(){
+    try{ localStorage.setItem(MUTE_KEY, _muted ? 'true' : 'false'); }catch(e){}
+  }
+
+  var _actx = null;
+  function getAudioContext(){
+    if(_actx) return _actx;
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      _actx = new AC();
+    }catch(e){ _actx = null; }
+    return _actx;
+  }
+  function resumeCtx(ctx){
+    if(ctx && ctx.state === 'suspended'){
+      try{ ctx.resume(); }catch(e){}
+    }
+  }
+
+  function sfxDeal(){
+    if(_muted) return;
+    var ctx = getAudioContext();
+    if(!ctx) return;
+    resumeCtx(ctx);
+    try{
+      var now = ctx.currentTime;
+      var bufLen = Math.floor(ctx.sampleRate * 0.18);
+      var buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      var data = buf.getChannelData(0);
+      for(var i=0;i<bufLen;i++){
+        data[i] = (Math.random()*2-1) * (1 - i/bufLen);
+      }
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 2200;
+      filter.Q.value = 0.9;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.28, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now+0.18);
+      src.connect(filter);
+      filter.connect(g);
+      g.connect(ctx.destination);
+      src.start(now);
+    }catch(e){}
+  }
+
+  function sfxSelect(){
+    if(_muted) return;
+    var ctx = getAudioContext();
+    if(!ctx) return;
+    resumeCtx(ctx);
+    try{
+      var now = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.18, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now+0.06);
+      osc.connect(g);
+      g.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now+0.06);
+    }catch(e){}
+  }
+
+  function sfxFlip(){
+    if(_muted) return;
+    var ctx = getAudioContext();
+    if(!ctx) return;
+    resumeCtx(ctx);
+    try{
+      var now = ctx.currentTime;
+      var bufLen = Math.floor(ctx.sampleRate * 0.07);
+      var buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      var data = buf.getChannelData(0);
+      for(var i=0;i<bufLen;i++){
+        data[i] = (Math.random()*2-1) * Math.pow(1 - i/bufLen, 2);
+      }
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 1800;
+      var g = ctx.createGain();
+      g.gain.setValueAtTime(0.22, now);
+      g.gain.exponentialRampToValueAtTime(0.001, now+0.07);
+      src.connect(filter);
+      filter.connect(g);
+      g.connect(ctx.destination);
+      src.start(now);
+    }catch(e){}
+  }
+
+  // level 1 = dealer drinks 2, level 2 = dealer drinks 4
+  function sfxWin(level){
+    if(_muted) return;
+    var ctx = getAudioContext();
+    if(!ctx) return;
+    resumeCtx(ctx);
+    try{
+      var now = ctx.currentTime;
+      var notes = level === 2
+        ? [523, 659, 784, 1047]   // C5 E5 G5 C6
+        : [523, 659, 784];        // C5 E5 G5
+      var dur = level === 2 ? 0.13 : 0.12;
+      var vol = level === 2 ? 0.28 : 0.22;
+      for(var i=0;i<notes.length;i++){
+        var osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = notes[i];
+        var g = ctx.createGain();
+        var t = now + i * dur;
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + dur + 0.02);
+      }
+    }catch(e){}
+  }
+
+  function sfxPenalty(){
+    if(_muted) return;
+    var ctx = getAudioContext();
+    if(!ctx) return;
+    resumeCtx(ctx);
+    try{
+      var now = ctx.currentTime;
+      var notes = [220, 165];
+      for(var i=0;i<notes.length;i++){
+        var osc = ctx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = notes[i];
+        var g = ctx.createGain();
+        var t = now + i * 0.18;
+        g.gain.setValueAtTime(0.22, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.18);
+      }
+    }catch(e){}
+  }
+
+  function sfxGameOver(){
+    if(_muted) return;
+    var ctx = getAudioContext();
+    if(!ctx) return;
+    resumeCtx(ctx);
+    try{
+      var now = ctx.currentTime;
+      var notes = [392, 330, 262, 196];
+      for(var i=0;i<notes.length;i++){
+        var osc = ctx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = notes[i];
+        var g = ctx.createGain();
+        var t = now + i * 0.19;
+        g.gain.setValueAtTime(0.2, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+        osc.connect(g);
+        g.connect(ctx.destination);
+        osc.start(t);
+        osc.stop(t + 0.24);
+      }
+    }catch(e){}
+  }
+
+  /* ----- Mute toggle UI wiring ----- */
+  var soundToggle = document.getElementById('soundToggle');
+  function updateSoundToggleUI(){
+    soundToggle.setAttribute('aria-pressed', _muted ? 'false' : 'true');
+    soundToggle.setAttribute('aria-label', _muted ? 'Sound off' : 'Sound on');
+    soundToggle.textContent = _muted ? '🔇' : '🔊';
+  }
+  updateSoundToggleUI();
+  soundToggle.addEventListener('click', function(){
+    _muted = !_muted;
+    saveMute();
+    updateSoundToggleUI();
+    // Unlock audio on first unmute tap
+    if(!_muted){
+      var ctx = getAudioContext();
+      if(ctx) resumeCtx(ctx);
+    }
+  });
+
+  /* ============ CELEBRATION HELPERS ============ */
+  function clearCelebration(){
+    var existing = document.querySelectorAll('.celeb-overlay, .celeb-glow, .chip, .screwed-stamp, .penalty-vignette');
+    for(var i=0;i<existing.length;i++){ existing[i].parentNode && existing[i].parentNode.removeChild(existing[i]); }
+  }
+
+  function spawnChips(amount){
+    // amount 4 = 20 chips, amount 2 = 12 chips
+    var count = amount === 4 ? 20 : 12;
+    var isLg = amount === 4;
+    var app = document.getElementById('app');
+    for(var i=0;i<count;i++){
+      var chip = document.createElement('div');
+      chip.className = 'chip' + (isLg ? ' chip-lg' : '');
+      var angle = (i / count) * 2 * Math.PI + (Math.random()-.5)*.5;
+      var dist = 80 + Math.random() * (isLg ? 160 : 110);
+      var dx = Math.round(Math.cos(angle) * dist);
+      var dy = Math.round(Math.sin(angle) * dist - 60);
+      var rot = Math.round((Math.random()-0.5)*720);
+      var delay = (Math.random() * 0.12).toFixed(3);
+      chip.style.cssText = '--dx:'+dx+';--dy:'+dy+';--rot:'+rot+';animation-delay:'+delay+'s';
+      app.appendChild(chip);
+      (function(el){ setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, 1100); })(chip);
+    }
+  }
+
+  function spawnGlow(){
+    var glow = document.createElement('div');
+    glow.className = 'celeb-glow';
+    document.getElementById('app').appendChild(glow);
+    setTimeout(function(){ glow.parentNode && glow.parentNode.removeChild(glow); }, 900);
+  }
+
+  function spawnStamp(isLarge){
+    var stamp = document.createElement('div');
+    stamp.className = 'screwed-stamp' + (isLarge ? ' stamp-lg' : '');
+    stamp.textContent = 'SCREWED';
+    document.getElementById('app').appendChild(stamp);
+    setTimeout(function(){ stamp.parentNode && stamp.parentNode.removeChild(stamp); }, 1800);
+  }
+
+  function spawnVignette(){
+    var vig = document.createElement('div');
+    vig.className = 'penalty-vignette';
+    document.getElementById('app').appendChild(vig);
+    setTimeout(function(){ vig.parentNode && vig.parentNode.removeChild(vig); }, 950);
+  }
+
   /* ----- Setup ----- */
   var playerList = document.getElementById('playerList');
   var setupError = document.getElementById('setupError');
@@ -945,6 +1372,7 @@ input{font-family:inherit}
       return;
     }
     buzz([20]);
+    sfxDeal();
     startGame(names);
   });
 
@@ -1013,6 +1441,7 @@ input{font-family:inherit}
             selected = cellEl;
             cellEl.classList.add('selected');
             buzz([15]);
+            sfxSelect();
             opts.onSelect(val);
           };
         })(cell, v));
@@ -1071,8 +1500,14 @@ input{font-family:inherit}
 
   /* ----- Reveal screen ----- */
   function renderReveal(){
+    // Clear any previous celebration elements
+    clearCelebration();
+
     var card = state.current;
     renderFullCard(document.getElementById('revealFront'), card);
+
+    // sfxFlip fires at the moment of reveal
+    sfxFlip();
 
     var flip = document.getElementById('revealCard');
     // Set the face-down state with no transition, then animate the flip to face-up.
@@ -1098,6 +1533,16 @@ input{font-family:inherit}
         '<div class="b-main">It was the '+label+'</div>' +
         '<div class="b-sub">'+escName(state.players[state.dealerIndex])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab</div>';
       buzz([20,60,20]);
+      // level 2 = amount 4 (first call), level 1 = amount 2 (second call)
+      var winLevel = r.amount === 4 ? 2 : 1;
+      sfxWin(winLevel);
+      if(!prefersReducedMotion){
+        spawnGlow();
+        spawnChips(r.amount);
+        spawnStamp(r.amount === 4);
+      }else{
+        spawnStamp(r.amount === 4);
+      }
     }else{
       var streak = state.missStreak || 0;
       var streakNote = streak >= 3 ? ' · deal passes next' : (streak > 1 ? ' · ' + streak + ' in a row' : '');
@@ -1107,6 +1552,8 @@ input{font-family:inherit}
         '<div class="b-main">It was the '+label+'</div>' +
         '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab'+escName(streakNote)+'</div>';
       buzz([60,40,60]);
+      sfxPenalty();
+      if(!prefersReducedMotion){ spawnVignette(); }
     }
   }
 
@@ -1163,10 +1610,54 @@ input{font-family:inherit}
 
     document.getElementById('undoBtn').hidden = !(state.history && state.history.length);
     renderTab();
+    renderAddPlayerControl();
+  }
+
+  /* ----- Add player mid-game ----- */
+  function renderAddPlayerControl(){
+    // Remove any existing add-player control
+    var existing = document.getElementById('midGameAddWrap');
+    if(existing){ existing.parentNode && existing.parentNode.removeChild(existing); }
+
+    var tabWrap = document.querySelector('#tabList');
+    if(!tabWrap) return;
+    var parent = tabWrap.parentNode; // .board-wrap containing tabList
+
+    var wrap = document.createElement('div');
+    wrap.id = 'midGameAddWrap';
+
+    var msgEl = document.createElement('div');
+    msgEl.className = 'tab-add-msg';
+    msgEl.id = 'midGameAddMsg';
+    msgEl.style.display = 'none';
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tab-add-player';
+    btn.textContent = '+ Add player';
+    btn.addEventListener('click', function(){
+      if(state.players.length >= 8){
+        msgEl.textContent = 'Eight players is the limit.';
+        msgEl.style.display = '';
+        setTimeout(function(){ msgEl.style.display = 'none'; }, 2500);
+        return;
+      }
+      var n = state.players.length + 1;
+      var newName = 'Player ' + n;
+      state.players.push(newName);
+      state.tally.push(0);
+      state.history = [];
+      save();
+      renderGame();
+    });
+
+    wrap.appendChild(btn);
+    wrap.appendChild(msgEl);
+    parent.appendChild(wrap);
   }
 
   /* ----- The Tab ----- */
-  function buildTabRows(listEl){
+  function buildTabRows(listEl, editable){
     listEl.innerHTML = '';
     var indices = [];
     for(var i=0;i<state.players.length;i++){ indices.push(i); }
@@ -1185,8 +1676,56 @@ input{font-family:inherit}
       rankEl.textContent = rank;
 
       var nameEl = document.createElement('span');
-      nameEl.className = 'tab-name';
+      nameEl.className = 'tab-name' + (editable ? ' tab-name-editable' : '');
       nameEl.textContent = state.players[idx];
+      if(editable){
+        nameEl.setAttribute('tabindex', '0');
+        nameEl.setAttribute('role', 'button');
+        nameEl.setAttribute('aria-label', 'Rename ' + state.players[idx]);
+        (function(playerIdx, nameSpan, listItem){
+          function startEdit(){
+            var currentName = state.players[playerIdx];
+            var inp = document.createElement('input');
+            inp.className = 'tab-name-inline-input';
+            inp.type = 'text';
+            inp.maxLength = 16;
+            inp.value = currentName;
+            inp.setAttribute('aria-label', 'Rename player');
+            listItem.replaceChild(inp, nameSpan);
+            inp.focus();
+            inp.select();
+            function commit(){
+              var val = inp.value.trim();
+              if(val && val !== currentName){
+                state.players[playerIdx] = val;
+                // propagate into history snapshots
+                for(var h=0;h<state.history.length;h++){
+                  if(state.history[h].players && playerIdx < state.history[h].players.length){
+                    state.history[h].players[playerIdx] = val;
+                  }
+                }
+                save();
+                renderTab();
+              }else{
+                // cancel: restore span
+                listItem.replaceChild(nameSpan, inp);
+              }
+            }
+            function cancel(){
+              listItem.replaceChild(nameSpan, inp);
+            }
+            inp.addEventListener('blur', commit);
+            inp.addEventListener('keydown', function(e){
+              if(e.key === 'Enter'){ e.preventDefault(); inp.removeEventListener('blur',commit); commit(); }
+              else if(e.key === 'Escape'){ e.preventDefault(); inp.removeEventListener('blur',commit); cancel(); }
+            });
+          }
+          nameSpan.addEventListener('click', startEdit);
+          nameSpan.addEventListener('keydown', function(e){
+            if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); startEdit(); }
+          });
+        })(idx, nameEl, li);
+      }
 
       var countEl = document.createElement('span');
       countEl.className = 'tab-count';
@@ -1202,12 +1741,13 @@ input{font-family:inherit}
 
   function renderTab(){
     var listEl = document.getElementById('tabList');
-    if(listEl) buildTabRows(listEl);
+    if(listEl) buildTabRows(listEl, true);
   }
 
   function renderGameOver(){
     var listEl = document.getElementById('goTab');
-    if(listEl) buildTabRows(listEl);
+    if(listEl) buildTabRows(listEl, false);
+    sfxGameOver();
   }
 
   /* ----- Deal animation ----- */
@@ -1235,6 +1775,7 @@ input{font-family:inherit}
   var dealBtn = document.getElementById('dealBtn');
   dealBtn.addEventListener('click', function(){
     buzz([20]);
+    sfxDeal();
     dealBtn.disabled = true;
     if(prefersReducedMotion){
       deal();
@@ -1248,7 +1789,7 @@ input{font-family:inherit}
   });
   document.getElementById('undoBtn').addEventListener('click', function(){ buzz([20]); undoRound(); });
   document.getElementById('nextBtn').addEventListener('click', function(){ nextRound(); });
-  document.getElementById('readyBtn').addEventListener('click', function(){ buzz([20]); rotateReady(); });
+  document.getElementById('readyBtn').addEventListener('click', function(){ buzz([20]); sfxSelect(); rotateReady(); });
 
   function renderRotate(){
     var n = state.players.length;

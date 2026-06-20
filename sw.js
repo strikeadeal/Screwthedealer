@@ -1,4 +1,4 @@
-const CACHE = 'screw-the-dealer-v5';
+const CACHE = 'screw-the-dealer-v6';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
