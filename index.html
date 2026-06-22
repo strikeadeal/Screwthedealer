@@ -154,6 +154,18 @@ input{font-family:inherit}
 .btn-lg{min-height:60px;font-size:1.12rem}
 
 .actions{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:auto}
+.screen[data-screen="game"] .actions{
+  position:sticky;
+  bottom:0;
+  z-index:5;
+  margin-left:calc(-1 * var(--sp-3));
+  margin-right:calc(-1 * var(--sp-3));
+  margin-bottom:calc(-1 * var(--sp-6));
+  padding:var(--sp-3) var(--sp-3) calc(env(safe-area-inset-bottom) + var(--sp-3));
+  background:linear-gradient(180deg, rgba(13,31,15,0) 0%, var(--felt) 32%, var(--felt-edge) 100%);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+}
 
 /* ---------- Rules disclosure ---------- */
 .rules{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:rgba(0,0,0,.18)}
@@ -533,29 +545,6 @@ summary:focus-visible,
   min-height:0;
   outline:none;
   max-width:100%;
-}
-.tab-add-player{
-  margin-top:6px;
-  font-size:.85rem;
-  color:var(--gold);
-  font-weight:600;
-  cursor:pointer;
-  background:transparent;
-  border:1px dashed rgba(217,174,85,.35);
-  border-radius:var(--r-md);
-  padding:8px var(--sp-3);
-  width:100%;
-  text-align:left;
-  min-height:var(--tap);
-  transition:background .15s ease, border-color .15s ease;
-  -webkit-tap-highlight-color:transparent;
-}
-.tab-add-player:hover{background:rgba(217,174,85,.07);border-color:var(--gold)}
-.tab-add-msg{
-  font-size:.82rem;
-  color:var(--text-dim);
-  margin-top:4px;
-  padding:0 var(--sp-3);
 }
 
 /* ---------- Celebration overlay & chip burst ---------- */
@@ -1638,50 +1627,6 @@ summary:focus-visible,
 
     document.getElementById('undoBtn').hidden = !(state.history && state.history.length);
     renderTab();
-    renderAddPlayerControl();
-  }
-
-  /* ----- Add player mid-game ----- */
-  function renderAddPlayerControl(){
-    // Remove any existing add-player control
-    var existing = document.getElementById('midGameAddWrap');
-    if(existing){ existing.parentNode && existing.parentNode.removeChild(existing); }
-
-    var tabWrap = document.querySelector('#tabList');
-    if(!tabWrap) return;
-    var parent = tabWrap.parentNode; // .board-wrap containing tabList
-
-    var wrap = document.createElement('div');
-    wrap.id = 'midGameAddWrap';
-
-    var msgEl = document.createElement('div');
-    msgEl.className = 'tab-add-msg';
-    msgEl.id = 'midGameAddMsg';
-    msgEl.style.display = 'none';
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'tab-add-player';
-    btn.textContent = '+ Add player';
-    btn.addEventListener('click', function(){
-      if(state.players.length >= 8){
-        msgEl.textContent = 'Eight players is the limit.';
-        msgEl.style.display = '';
-        setTimeout(function(){ msgEl.style.display = 'none'; }, 2500);
-        return;
-      }
-      var n = state.players.length + 1;
-      var newName = 'Player ' + n;
-      state.players.push(newName);
-      state.tally.push(0);
-      state.history = [];
-      save();
-      renderGame();
-    });
-
-    wrap.appendChild(btn);
-    wrap.appendChild(msgEl);
-    parent.appendChild(wrap);
   }
 
   /* ----- The Tab ----- */
