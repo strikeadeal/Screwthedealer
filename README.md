@@ -55,7 +55,8 @@ split into two layers:
     dealerIndex,   // index of current dealer
     deck,          // array of {value:1..13, suit:0..3}, shuffled (Fisher–Yates)
     discard,       // cards already played this deck
-    reshuffles,    // how many times the deck has been exhausted
+    reshuffles,    // how many times the deck has been exhausted (kept for save compat)
+    rounds,        // count of completed rounds this game
     current,       // the card currently in play, or null
     firstGuess,    // the guesser's first call (rank 1..13)
     hint,          // 'higher' | 'lower' after a wrong first call
@@ -67,8 +68,12 @@ split into two layers:
 - Cards are `{value, suit}` where `value` is 1–13 (A..K, via the `LABELS` array)
   and `suit` is an index into `SUITS` (`♠♥♦♣`).
 - Key transitions: `startGame` → `deal` → `submitFirstGuess` → (`submitSecondGuess`)
-  → `nextRound` → `rotateReady`. The deck reshuffles when exhausted; after
-  `MAX_RESHUFFLES` (3) the game ends (`gameOver`).
+  → `nextRound` → `rotateReady`. The deck does **not** reshuffle; the game ends
+  (`gameOver`) when the single 52-card deck is exhausted (`MAX_DECKS` = 1).
+- A per-game `rounds` counter (incremented in `nextRound`) tracks how many rounds
+  were completed. The game screen shows a draining progress bar beneath the deck
+  meter. The game-over screen renders a "bar tab" receipt with final standings,
+  rounds played, total sips poured, and winner/biggest-drinker awards.
 - State is **persisted to `localStorage`** under `STORE_KEY` (`screwTheDealer.v1`)
   on every `save()`, and restored on `boot()` so a refresh resumes the game.
 
@@ -129,7 +134,7 @@ No install needed.
   typically rebuilds within a minute or two.
 - When changing app files, **bump the `CACHE` version string in `sw.js`** so the
   service worker invalidates old caches and clients receive the update instead of
-  serving stale assets.
+  serving stale assets. Current version: `screw-the-dealer-v7`.
 - Work directly on `main` (or via short-lived branches merged into it). There is
   no separate deploy or staging branch to keep in sync.
 

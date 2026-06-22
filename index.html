@@ -32,6 +32,7 @@
 
   --display:'Playfair Display',Georgia,serif;
   --ui:'Inter',system-ui,-apple-system,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
 
   --sp-1:6px; --sp-2:10px; --sp-3:16px; --sp-4:24px; --sp-5:36px; --sp-6:52px;
   --r-sm:8px; --r-md:14px; --r-lg:22px;
@@ -228,6 +229,10 @@ input{font-family:inherit}
 .deck-count{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--ivory)}
 .deck-count small{font-size:.85rem;color:var(--text-dim);font-family:var(--ui);font-weight:500}
 
+/* ---------- Deck progress bar ---------- */
+.deck-bar{height:6px;border-radius:999px;background:rgba(0,0,0,.28);overflow:hidden;margin-top:calc(-1 * var(--sp-2))}
+.deck-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));transition:width .3s ease}
+
 /* ---------- Played-card board (fixed slot per value, A->K) ---------- */
 .board-wrap{display:flex;flex-direction:column;gap:var(--sp-2)}
 .board-wrap .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
@@ -388,10 +393,31 @@ input{font-family:inherit}
 .pass .pass-name{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,13vw,3.6rem);color:var(--gold-bright);line-height:1.02;word-break:break-word}
 .pass .pass-note{color:var(--text-dim);font-size:.92rem;max-width:28ch}
 
-/* ---------- Game over ---------- */
-.gover{text-align:center;display:flex;flex-direction:column;gap:var(--sp-3);align-items:center;justify-content:center;flex:1}
-.gover .go-title{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,13vw,3.4rem);color:var(--ivory);line-height:1}
-.gover .go-sub{color:var(--text-dim);font-size:1rem;max-width:30ch}
+/* ---------- Game over / receipt ---------- */
+.gover-wrap{display:flex;flex-direction:column;justify-content:center;align-items:center;flex:1;padding:var(--sp-2) 0}
+.receipt{
+  width:100%;max-width:330px;
+  background:linear-gradient(170deg,var(--ivory),var(--ivory-2));
+  color:var(--ink);
+  border-radius:4px;
+  box-shadow:var(--sh-card);
+  transform:rotate(-1.1deg);
+  padding:var(--sp-4) var(--sp-3) var(--sp-3);
+  display:flex;flex-direction:column;gap:var(--sp-2);
+}
+.rcpt-head{text-align:center;display:flex;flex-direction:column;gap:4px;margin-bottom:var(--sp-1)}
+.rcpt-star{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;color:var(--gold-deep);font-weight:700}
+.rcpt-title{font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:.01em;color:var(--ink)}
+.rcpt-meta{font-family:var(--mono);font-size:.7rem;color:rgba(27,19,12,.7);letter-spacing:.04em}
+.rcpt-rule{border:none;border-top:1px dashed rgba(27,19,12,.45);margin:var(--sp-1) 0}
+.rcpt-row{display:flex;align-items:baseline;gap:6px;font-family:var(--mono);font-size:.9rem;color:var(--ink)}
+.rcpt-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.rcpt-row .ldr{flex:1;border-bottom:1px dotted rgba(27,19,12,.4);transform:translateY(-3px)}
+.rcpt-row .amt{white-space:nowrap;font-weight:700}
+.rcpt-row.total{font-weight:700;letter-spacing:.02em}
+.rcpt-awards{display:flex;flex-direction:column;gap:4px;margin-top:var(--sp-1);font-family:var(--mono);font-size:.82rem;color:var(--ink)}
+.rcpt-award{display:flex;gap:6px;align-items:baseline}
+.rcpt-closer{text-align:center;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--gold-deep);font-weight:700;margin-top:var(--sp-2)}
 
 .center-block{display:flex;flex-direction:column;justify-content:center;flex:1;gap:var(--sp-4)}
 
@@ -632,6 +658,7 @@ summary:focus-visible,
   .celeb-glow{animation:none;opacity:0;display:none}
   .penalty-vignette{animation:none;display:none}
   .screwed-stamp{animation:none;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
+  .deck-bar-fill{transition:none}
 }
 </style>
 </head>
@@ -693,6 +720,7 @@ summary:focus-visible,
       <span class="label">Cards left</span>
       <span class="deck-count"><span id="deckCount">52</span> <small>/ 52</small></span>
     </div>
+    <div class="deck-bar"><div class="deck-bar-fill" id="deckBarFill"></div></div>
 
     <div class="board-wrap">
       <span class="label">The board</span>
@@ -786,15 +814,12 @@ summary:focus-visible,
 
   <!-- GAME OVER -->
   <section class="screen" data-screen="gameOver">
-    <div class="gover">
-      <span class="pass-chip">♠</span>
-      <span class="eyebrow">Three decks down</span>
-      <h2 class="go-title">Last call</h2>
-      <p class="go-sub">The deck's been run three times over. Settle the tab below.</p>
-      <ol class="tab-list" id="goTab" style="width:100%;max-width:300px"></ol>
+    <div class="gover-wrap">
+      <div class="receipt" id="receipt"></div>
     </div>
     <div class="actions">
-      <button class="btn btn-primary btn-lg btn-block" id="newGameBtn" type="button">New game</button>
+      <button class="btn btn-primary btn-lg btn-block" id="rematchBtn" type="button">Play again, same crew</button>
+      <button class="btn btn-ghost btn-block" id="newGameBtn" type="button">New game</button>
     </div>
   </section>
 
@@ -824,7 +849,7 @@ summary:focus-visible,
   // rank value 1..13 -> label
   var LABELS = ['', 'A','2','3','4','5','6','7','8','9','10','J','Q','K'];
   var RANK_NAMES = ['', 'Ace','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Jack','Queen','King'];
-  var MAX_RESHUFFLES = 3;
+  var MAX_DECKS = 1;
   var STORE_KEY = 'screwTheDealer.v1';
 
   var prefersReducedMotion = window.matchMedia &&
@@ -842,6 +867,7 @@ summary:focus-visible,
       deck:shuffle(buildDeck()),
       discard:[],
       reshuffles:0,
+      rounds:0,            // rounds completed this game
       current:null,        // {value, suit}
       firstGuess:null,     // rank value
       hint:null,           // 'higher' | 'lower'
@@ -927,6 +953,7 @@ summary:focus-visible,
       if(!Array.isArray(s.history)){ s.history = []; }
       if(typeof s.guesser !== 'number'){ s.guesser = (s.dealerIndex + 1) % s.players.length; }
       if(typeof s.missStreak !== 'number'){ s.missStreak = 0; }
+      if(typeof s.rounds !== 'number'){ s.rounds = 0; }
       return s;
     }catch(e){ return null; }
   }
@@ -945,12 +972,11 @@ summary:focus-visible,
     go('game');
   }
 
-  // Draw the top card, handling exhaustion + reshuffle.
-  // Returns false if the game is over (3rd exhaustion).
+  // Draw the top card. Returns false if the single deck is exhausted (game over).
   function drawCard(){
     if(state.deck.length === 0){
       state.reshuffles++;
-      if(state.reshuffles >= MAX_RESHUFFLES){ return false; }
+      if(state.reshuffles >= MAX_DECKS){ return false; }
       state.deck = shuffle(buildDeck());
       state.discard = [];
     }
@@ -1007,6 +1033,7 @@ summary:focus-visible,
 
   // Move the revealed card to the discard pile (once), then show rotate.
   function nextRound(){
+    state.rounds++;
     state.discard.push(state.current);
     state.current = null;
     go('rotate');
@@ -1598,6 +1625,7 @@ summary:focus-visible,
     document.getElementById('gameDealer').textContent = state.players[state.dealerIndex];
     document.getElementById('gameGuesser').textContent = state.players[guesserIndex()];
     document.getElementById('deckCount').textContent = state.deck.length;
+    document.getElementById('deckBarFill').style.width = ((state.deck.length / 52) * 100) + '%';
 
     // Lay out a fixed slot for every value A..K in rank order.
     buildBoard(document.getElementById('board'));
@@ -1745,8 +1773,137 @@ summary:focus-visible,
   }
 
   function renderGameOver(){
-    var listEl = document.getElementById('goTab');
-    if(listEl) buildTabRows(listEl, false);
+    var receipt = document.getElementById('receipt');
+    if(!receipt) return;
+    receipt.innerHTML = '';
+
+    // --- Header ---
+    var head = document.createElement('div');
+    head.className = 'rcpt-head';
+    var star = document.createElement('div');
+    star.className = 'rcpt-star';
+    star.textContent = '★ SCREW THE DEALER ★';
+    var title = document.createElement('div');
+    title.className = 'rcpt-title';
+    title.textContent = 'BAR TAB — LAST CALL';
+    var d = new Date();
+    var meta = document.createElement('div');
+    meta.className = 'rcpt-meta';
+    meta.textContent = d.toLocaleDateString() + ' · Table of ' + state.players.length;
+    head.appendChild(star);
+    head.appendChild(title);
+    head.appendChild(meta);
+    receipt.appendChild(head);
+
+    // --- Itemized rows (sorted descending by tally) ---
+    var indices = [];
+    for(var i=0;i<state.players.length;i++){ indices.push(i); }
+    indices.sort(function(a,b){ return state.tally[b] - state.tally[a]; });
+
+    for(var n=0;n<indices.length;n++){
+      var idx = indices[n];
+      var row = document.createElement('div');
+      row.className = 'rcpt-row';
+      var nm = document.createElement('span');
+      nm.className = 'nm';
+      nm.textContent = state.players[idx];
+      var ldr = document.createElement('span');
+      ldr.className = 'ldr';
+      var amt = document.createElement('span');
+      amt.className = 'amt';
+      amt.textContent = state.tally[idx];
+      row.appendChild(nm);
+      row.appendChild(ldr);
+      row.appendChild(amt);
+      receipt.appendChild(row);
+    }
+
+    // --- Dashed divider ---
+    var rule = document.createElement('hr');
+    rule.className = 'rcpt-rule';
+    receipt.appendChild(rule);
+
+    // --- Totals rows ---
+    var totalSips = 0;
+    for(var t=0;t<state.tally.length;t++){ totalSips += state.tally[t]; }
+
+    var rowRounds = document.createElement('div');
+    rowRounds.className = 'rcpt-row total';
+    var rnm = document.createElement('span');
+    rnm.className = 'nm';
+    rnm.textContent = 'ROUNDS PLAYED';
+    var rldr = document.createElement('span');
+    rldr.className = 'ldr';
+    var ramt = document.createElement('span');
+    ramt.className = 'amt';
+    ramt.textContent = state.rounds;
+    rowRounds.appendChild(rnm);
+    rowRounds.appendChild(rldr);
+    rowRounds.appendChild(ramt);
+    receipt.appendChild(rowRounds);
+
+    var rowSips = document.createElement('div');
+    rowSips.className = 'rcpt-row total';
+    var snm = document.createElement('span');
+    snm.className = 'nm';
+    snm.textContent = 'SIPS POURED';
+    var sldr = document.createElement('span');
+    sldr.className = 'ldr';
+    var samt = document.createElement('span');
+    samt.className = 'amt';
+    samt.textContent = totalSips;
+    rowSips.appendChild(snm);
+    rowSips.appendChild(sldr);
+    rowSips.appendChild(samt);
+    receipt.appendChild(rowSips);
+
+    // --- Awards ---
+    var awards = document.createElement('div');
+    awards.className = 'rcpt-awards';
+
+    if(totalSips === 0){
+      var nobody = document.createElement('div');
+      nobody.className = 'rcpt-award';
+      nobody.textContent = 'Nobody drank — suspicious.';
+      awards.appendChild(nobody);
+    }else{
+      // Compute min and max tally
+      var minVal = state.tally[0];
+      var maxVal = state.tally[0];
+      for(var m=1;m<state.tally.length;m++){
+        if(state.tally[m] < minVal){ minVal = state.tally[m]; }
+        if(state.tally[m] > maxVal){ maxVal = state.tally[m]; }
+      }
+
+      function winnersLabel(targetVal){
+        var winners = [];
+        for(var w=0;w<state.players.length;w++){
+          if(state.tally[w] === targetVal){ winners.push(state.players[w]); }
+        }
+        if(winners.length === 1){ return winners[0]; }
+        if(winners.length === 2){ return winners[0] + ' & ' + winners[1]; }
+        return winners[0] + ' +' + (winners.length - 1) + ' more';
+      }
+
+      var leastRow = document.createElement('div');
+      leastRow.className = 'rcpt-award';
+      leastRow.textContent = '👑 LEAST DAMAGE: ' + winnersLabel(minVal);
+      awards.appendChild(leastRow);
+
+      var mostRow = document.createElement('div');
+      mostRow.className = 'rcpt-award';
+      mostRow.textContent = '🍺 BIGGEST TAB: ' + winnersLabel(maxVal);
+      awards.appendChild(mostRow);
+    }
+
+    receipt.appendChild(awards);
+
+    // --- Closer ---
+    var closer = document.createElement('div');
+    closer.className = 'rcpt-closer';
+    closer.textContent = 'PAID IN FULL — IN SIPS';
+    receipt.appendChild(closer);
+
     sfxGameOver();
   }
 
@@ -1820,6 +1977,10 @@ summary:focus-visible,
     }
   }
   document.getElementById('endBtn1').addEventListener('click', confirmEnd);
+  document.getElementById('rematchBtn').addEventListener('click', function(){
+    buzz([20]);
+    startGame(state.players);
+  });
   document.getElementById('newGameBtn').addEventListener('click', function(){
     clearSave();
     buildSetup();
