@@ -34,9 +34,11 @@ players.
 | `index.html` | The whole application: HTML structure, inline CSS, and the game engine + UI layer in a single inline `<script>` IIFE. |
 | `manifest.json` | PWA manifest — app name, colors, `display: standalone`, `orientation: portrait`, and inline SVG (data-URI) icons. No external image files. |
 | `sw.js` | Service worker. Cache-first strategy for offline play; falls back to the cached `index.html` shell for navigations. Bump the `CACHE` constant when shipping changes so clients pick them up. |
+| `apple-touch-icon.png` | 180×180 raster home-screen icon for iOS Safari "Add to Home Screen" (iOS ignores the manifest's SVG icons for this). The only binary asset. Regenerate it if the icon art changes. |
 | `README.md` | This file. |
 
-There are intentionally **no** other source files, lockfiles, or tooling.
+There are intentionally **no** other source files, lockfiles, or tooling
+(aside from the single `apple-touch-icon.png`).
 
 ---
 
@@ -134,7 +136,7 @@ No install needed.
   typically rebuilds within a minute or two.
 - When changing app files, **bump the `CACHE` version string in `sw.js`** so the
   service worker invalidates old caches and clients receive the update instead of
-  serving stale assets. Current version: `screw-the-dealer-v9`.
+  serving stale assets. Current version: `screw-the-dealer-v10`.
 - Work directly on `main` (or via short-lived branches merged into it). There is
   no separate deploy or staging branch to keep in sync.
 
@@ -154,6 +156,9 @@ No install needed.
   doesn't break `boot()` (bump the key or guard the new fields).
 - **Service worker caching:** changes won't appear for returning users until the
   `CACHE` constant in `sw.js` is bumped.
-- **No external assets:** icons are inline SVG data-URIs in `manifest.json`; fonts
-  are loaded from Google Fonts via `@import`. Keep the app installable and
-  offline-capable.
+- **Minimal external assets:** the manifest's install icons are inline SVG
+  data-URIs, and fonts load from Google Fonts via `@import`. The one binary file
+  is `apple-touch-icon.png` (a 180×180 raster the iOS home screen requires, since
+  it ignores SVG/data-URI `apple-touch-icon`s). It is cached by `sw.js`, so keep
+  it in the `ASSETS` list and bump `CACHE` if you change it. Keep the app
+  installable and offline-capable.
