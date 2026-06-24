@@ -134,7 +134,7 @@ No install needed.
   typically rebuilds within a minute or two.
 - When changing app files, **bump the `CACHE` version string in `sw.js`** so the
   service worker invalidates old caches and clients receive the update instead of
-  serving stale assets. Current version: `screw-the-dealer-v8`.
+  serving stale assets. Current version: `screw-the-dealer-v9`.
 - Work directly on `main` (or via short-lived branches merged into it). There is
   no separate deploy or staging branch to keep in sync.
 

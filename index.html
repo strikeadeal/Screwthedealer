@@ -3,45 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="theme-color" content="#0D1F0F">
+<meta name="theme-color" content="#1E0F0A">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dealer">
 <title>Screw the Dealer</title>
 <link rel="manifest" href="manifest.json">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,600&family=Jost:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap');
 
 :root{
-  --felt:#0D1F0F;
-  --felt-2:#102715;
-  --felt-3:#16331E;
-  --felt-edge:#091709;
-  --line:rgba(217,174,85,.20);
-  --line-soft:rgba(217,174,85,.10);
-  --ivory:#F4ECD6;
-  --ivory-2:#E6DABA;
-  --ink:#1B130C;
-  --gold:#D9AE55;
-  --gold-bright:#F2CE7B;
-  --gold-deep:#A9802F;
-  --red:#B23A2E;
-  --red-bright:#D2685C;
-  --text:#EAEDE1;
-  --text-dim:#94A88E;
+  --mahogany-deep:#1E0F0A;
+  --mahogany:#3A1D13;
+  --felt-shadow:#0F2417;
+  --felt:#1B3A26;
+  --felt-worn:#234A30;
+  --brass:#B5904E;
+  --brass-hi:#ECD49A;
+  --brass-lo:#6B4F25;
+  --ivory:#ECE2C9;
+  --ivory-shade:#D6C7A1;
+  --ink:#211913;
+  --card-red:#9C2A24;
+  --text:#ECE4D2;
+  --text-dim:#93A68F;
 
-  --display:'Playfair Display',Georgia,serif;
-  --ui:'Inter',system-ui,-apple-system,sans-serif;
-  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  --display:'Cormorant',Georgia,serif;
+  --ui:'Jost',system-ui,sans-serif;
+  --data:'Courier Prime',ui-monospace,monospace;
 
   --sp-1:6px; --sp-2:10px; --sp-3:16px; --sp-4:24px; --sp-5:36px; --sp-6:52px;
-  --r-sm:8px; --r-md:14px; --r-lg:22px;
+  --r-sm:6px; --r-md:10px; --r-lg:16px;
   --tap:52px;
 
-  --sh-card:0 18px 40px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.4);
-  --sh-pop:0 10px 30px rgba(0,0,0,.5);
+  --sh-card:0 18px 40px rgba(0,0,0,.65), 0 3px 8px rgba(0,0,0,.45);
+  --sh-pop:0 10px 30px rgba(0,0,0,.55);
 
-  --z-screen:1; --z-banner:5; --z-toast:9;
+  --z-screen:1; --z-banner:5; --z-toast:9; --z-frame:40;
+
+  /* Rail geometry — adjust if safe area insets shift */
+  --rail-size:22px;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -51,8 +52,11 @@ html,body{height:100%}
 body{
   font-family:var(--ui);
   color:var(--text);
-  background:
-    radial-gradient(120% 80% at 50% -10%, #173a20 0%, var(--felt) 55%, var(--felt-edge) 100%);
+  background-color:var(--mahogany-deep);
+  background-image:
+    radial-gradient(ellipse 120% 90% at 50% 50%, var(--felt-worn) 0%, var(--felt) 40%, var(--felt-shadow) 78%, var(--mahogany-deep) 100%),
+    repeating-linear-gradient(0deg,   transparent 0px, transparent 3px, rgba(0,0,0,.07) 3px, rgba(0,0,0,.07) 4px),
+    repeating-linear-gradient(90deg,  transparent 0px, transparent 5px, rgba(0,0,0,.05) 5px, rgba(0,0,0,.05) 6px);
   background-attachment:fixed;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
@@ -65,15 +69,51 @@ body{
 button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
 input{font-family:inherit}
 
-/* ---------- App shell / screens ---------- */
-#app{position:relative;width:100%;max-width:480px;margin:0 auto;min-height:100dvh}
+/* ============================================================
+   BRASS RAIL FRAME
+   ============================================================ */
+#table-frame{
+  position:fixed;
+  top:calc(env(safe-area-inset-top) + 5px);
+  right:calc(env(safe-area-inset-right) + 5px);
+  bottom:calc(env(safe-area-inset-bottom) + 5px);
+  left:calc(env(safe-area-inset-left) + 5px);
+  z-index:var(--z-frame);
+  pointer-events:none;
+  border-radius:12px;
+  /* turned-brass molding cross-section: outer dark edge -> bright highlight ridge -> brass body -> inner shadow -> dark reveal; mahogany surround outside */
+  box-shadow:
+    0 0 0 3px var(--mahogany),
+    0 0 0 6px var(--mahogany-deep),
+    inset 0 0 0 1px var(--brass-lo),
+    inset 0 0 0 5px var(--brass-hi),
+    inset 0 0 0 13px var(--brass),
+    inset 0 0 0 16px var(--brass-lo),
+    inset 0 0 0 17px rgba(0,0,0,.5);
+}
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app{
+  position:relative;
+  width:100%;
+  max-width:480px;
+  margin:0 auto;
+  min-height:100dvh;
+  /* keep content off the rail */
+  padding-top:calc(var(--rail-size) + 8px);
+  padding-bottom:calc(var(--rail-size) + 8px);
+  padding-left:calc(var(--rail-size) + 2px);
+  padding-right:calc(var(--rail-size) + 2px);
+}
 
 .screen{
   display:none;
   flex-direction:column;
   gap:var(--sp-4);
   padding:var(--sp-4) var(--sp-3) var(--sp-6);
-  min-height:100dvh;
+  min-height:calc(100dvh - (var(--rail-size)*2) - 16px);
   z-index:var(--z-screen);
   animation:screen-in .42s cubic-bezier(.2,.7,.2,1) both;
 }
@@ -84,28 +124,43 @@ input{font-family:inherit}
   to{opacity:1;transform:none}
 }
 
-/* ---------- Type / headers ---------- */
+/* ============================================================
+   TYPOGRAPHY ROLES
+   ============================================================ */
 .eyebrow{
   font-family:var(--ui);
-  font-size:.72rem;
+  font-size:.68rem;
   font-weight:600;
-  letter-spacing:.32em;
+  letter-spacing:.24em;
   text-transform:uppercase;
-  color:var(--gold);
+  color:var(--brass);
 }
+
 .title{
   font-family:var(--display);
-  font-weight:800;
-  line-height:.96;
-  letter-spacing:-.01em;
-  font-size:clamp(2.6rem,13vw,3.4rem);
+  font-weight:700;
+  line-height:.98;
+  font-size:clamp(2.8rem,15vw,4rem);
   color:var(--ivory);
+  letter-spacing:0;
 }
-.title .amp{color:var(--gold);font-style:italic;font-weight:700}
-.subtitle{color:var(--text-dim);font-size:.95rem;line-height:1.5;max-width:32ch}
+.title .amp{color:var(--brass);font-style:italic;font-weight:600}
+.subtitle{
+  font-family:var(--ui);
+  color:var(--text-dim);
+  font-size:.95rem;
+  line-height:1.55;
+  max-width:34ch;
+}
 
 .brand{display:flex;flex-direction:column;gap:var(--sp-2)}
-.brand-rule{height:1px;background:linear-gradient(90deg,var(--gold) 0%,transparent 70%);margin-top:var(--sp-1)}
+/* Crisp 1 px brass rule */
+.brand-rule{
+  height:1px;
+  background:var(--brass);
+  opacity:.55;
+  margin-top:var(--sp-1);
+}
 
 .screen-head{display:flex;flex-direction:column;gap:var(--sp-1)}
 .screen-head h2{
@@ -114,46 +169,77 @@ input{font-family:inherit}
   font-size:clamp(1.9rem,8vw,2.4rem);
   color:var(--ivory);
   line-height:1.05;
+  letter-spacing:.02em;
+  text-transform:uppercase;
 }
 
-/* ---------- Buttons ---------- */
+/* ============================================================
+   BUTTONS
+   ============================================================ */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
   min-height:var(--tap);
   padding:0 var(--sp-4);
   border-radius:var(--r-md);
-  font-weight:600;font-size:1.02rem;letter-spacing:.01em;
-  transition:transform .12s ease, filter .2s ease, box-shadow .2s ease;
+  font-family:var(--ui);
+  font-weight:600;
+  font-size:1rem;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  transition:box-shadow .1s ease, transform .1s ease;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
 }
-.btn:active{transform:scale(.97)}
 
 .btn-primary{
-  background:linear-gradient(180deg,var(--gold-bright),var(--gold) 55%,var(--gold-deep));
-  color:#241803;
+  background:linear-gradient(180deg, var(--brass-hi) 0%, var(--brass) 18%, var(--brass) 60%, var(--brass-lo) 100%);
+  color:var(--ink);
   font-weight:700;
-  box-shadow:0 6px 18px rgba(217,174,85,.28), inset 0 1px 0 rgba(255,255,255,.4);
+  border:1px solid var(--brass-lo);
+  box-shadow:
+    inset 0  1px 0   rgba(255,255,255,.45),
+    inset 0 -2px 3px rgba(0,0,0,.25),
+    0 2px 5px rgba(0,0,0,.4);
 }
-.btn-primary:disabled{filter:grayscale(.7) brightness(.7);opacity:.55;box-shadow:none;cursor:default}
+.btn-primary:active{
+  box-shadow:inset 0 2px 5px rgba(0,0,0,.45);
+  transform:translateY(1px);
+}
+.btn-primary:disabled{
+  filter:grayscale(.6) brightness(.7);
+  opacity:.5;
+  box-shadow:none;
+  cursor:default;
+}
 
 .btn-secondary{
-  background:var(--felt-3);
+  background:rgba(0,0,0,.22);
   color:var(--text);
-  border:1px solid var(--line);
+  border:1px solid rgba(181,144,78,.28);
 }
+.btn-secondary:active{background:rgba(0,0,0,.35)}
+
 .btn-danger{
   background:transparent;
-  color:var(--red-bright);
-  border:1px solid rgba(178,58,46,.5);
+  color:var(--card-red);
+  border:1px solid rgba(156,42,36,.5);
 }
+.btn-danger:active{background:rgba(156,42,36,.08)}
+
 .btn-ghost{
-  background:transparent;color:var(--text-dim);min-height:48px;font-size:.9rem;
+  background:transparent;
+  color:var(--text-dim);
+  min-height:48px;
+  font-size:.9rem;
 }
+.btn-ghost:active{color:var(--text)}
+
 .btn-block{width:100%}
-.btn-lg{min-height:60px;font-size:1.12rem}
+.btn-lg{min-height:60px;font-size:1.1rem}
 
 .actions{display:flex;flex-direction:column;gap:var(--sp-2);margin-top:auto}
+
+/* Sticky action bar on game screen */
 .screen[data-screen="game"] .actions{
   position:sticky;
   bottom:0;
@@ -162,304 +248,746 @@ input{font-family:inherit}
   margin-right:calc(-1 * var(--sp-3));
   margin-bottom:calc(-1 * var(--sp-6));
   padding:var(--sp-3) var(--sp-3) calc(env(safe-area-inset-bottom) + var(--sp-3));
-  background:linear-gradient(180deg, rgba(13,31,15,0) 0%, var(--felt) 32%, var(--felt-edge) 100%);
+  background:linear-gradient(180deg, rgba(27,58,38,0) 0%, var(--felt) 32%, var(--felt-shadow) 100%);
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
 }
 
-/* ---------- Rules disclosure ---------- */
-.rules{border:1px solid var(--line-soft);border-radius:var(--r-md);overflow:hidden;background:rgba(0,0,0,.18)}
+/* ============================================================
+   RULES DISCLOSURE
+   ============================================================ */
+.rules{
+  border:1px solid rgba(181,144,78,.2);
+  border-radius:var(--r-md);
+  overflow:hidden;
+  background:rgba(0,0,0,.18);
+}
 .rules summary{
-  list-style:none;cursor:pointer;padding:14px var(--sp-3);
+  list-style:none;cursor:pointer;
+  padding:14px var(--sp-3);
   display:flex;justify-content:space-between;align-items:center;
-  font-weight:600;font-size:.9rem;color:var(--text);min-height:48px;
+  font-family:var(--ui);
+  font-weight:600;
+  font-size:.85rem;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--text);
+  min-height:48px;
 }
 .rules summary::-webkit-details-marker{display:none}
-.rules summary .chev{color:var(--gold);transition:transform .25s ease}
+.rules summary .chev{color:var(--brass);transition:transform .25s ease;font-style:normal}
 .rules[open] summary .chev{transform:rotate(180deg)}
-.rules-body{padding:0 var(--sp-3) var(--sp-3);color:var(--text-dim);font-size:.88rem;line-height:1.6}
+.rules-body{
+  padding:0 var(--sp-3) var(--sp-3);
+  font-family:var(--ui);
+  color:var(--text-dim);
+  font-size:.88rem;
+  line-height:1.65;
+}
 .rules-body ol{padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
-.rules-body b{color:var(--ivory-2);font-weight:600}
+.rules-body b{color:var(--ivory-shade);font-weight:600}
 
-/* ---------- Player setup ---------- */
+/* ============================================================
+   PLAYER SETUP
+   ============================================================ */
 .players{display:flex;flex-direction:column;gap:var(--sp-2)}
 .player-row{display:flex;align-items:center;gap:var(--sp-2)}
 .player-seat{
   width:34px;height:34px;flex:0 0 34px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-family:var(--display);font-weight:700;font-size:1rem;
-  color:var(--gold);border:1px solid var(--line);background:var(--felt-2);
+  color:var(--brass);
+  border:1px solid rgba(181,144,78,.35);
+  background:rgba(0,0,0,.25);
 }
 .player-input{
   flex:1;min-height:var(--tap);
-  background:var(--felt-2);
-  border:1px solid var(--line-soft);
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(181,144,78,.2);
   border-radius:var(--r-md);
   padding:0 var(--sp-3);
-  color:var(--text);font-size:1rem;
+  color:var(--text);
+  font-family:var(--ui);
+  font-size:1rem;
   transition:border-color .2s ease, background .2s ease;
 }
-.player-input::placeholder{color:#5d7059}
-.player-input:focus{outline:none;border-color:var(--gold);background:var(--felt-3)}
+.player-input::placeholder{color:rgba(147,166,143,.5)}
+.player-input:focus{
+  outline:none;
+  border-color:var(--brass);
+  background:rgba(0,0,0,.32);
+}
 .player-remove{
   width:var(--tap);height:var(--tap);flex:0 0 var(--tap);
-  border-radius:var(--r-md);color:var(--text-dim);font-size:1.4rem;line-height:1;
+  border-radius:var(--r-md);
+  color:var(--text-dim);
+  font-size:1.4rem;
+  line-height:1;
   display:flex;align-items:center;justify-content:center;
 }
-.player-remove:active{color:var(--red-bright)}
+.player-remove:active{color:var(--card-red)}
 .add-player{align-self:flex-start;margin-top:var(--sp-1)}
-.form-error{color:var(--red-bright);font-size:.85rem;min-height:1.2em;font-weight:500}
+.form-error{
+  font-family:var(--ui);
+  color:var(--card-red);
+  font-size:.85rem;
+  min-height:1.2em;
+  font-weight:500;
+}
 
-/* ---------- Dealer / guesser pill ---------- */
+/* ============================================================
+   DEALER / GUESSER ROLE CARD
+   ============================================================ */
 .role-card{
-  border:1px solid var(--line);
+  border:1px solid rgba(181,144,78,.3);
   border-radius:var(--r-lg);
-  background:linear-gradient(160deg,var(--felt-3),var(--felt-2));
+  background:rgba(0,0,0,.28);
   padding:var(--sp-4);
   display:flex;flex-direction:column;gap:var(--sp-1);
-  box-shadow:var(--sh-pop), inset 0 1px 0 rgba(217,174,85,.12);
+  box-shadow:var(--sh-pop), inset 0 1px 0 rgba(236,212,154,.1);
   text-align:center;
 }
-.role-label{font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);font-weight:600}
-.role-name{
-  font-family:var(--display);font-weight:800;
-  font-size:clamp(2.3rem,11vw,3rem);color:var(--ivory);line-height:1.02;
-  word-break:break-word;
+.role-label{
+  font-family:var(--ui);
+  font-size:.68rem;
+  letter-spacing:.26em;
+  text-transform:uppercase;
+  color:var(--brass);
+  font-weight:600;
 }
-.role-sub{color:var(--text-dim);font-size:.9rem}
-.role-sub b{color:var(--ivory-2);font-weight:600}
+.role-name{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(1.85rem,8.5vw,2.5rem);
+  color:var(--ivory);
+  line-height:1.04;
+  overflow-wrap:break-word;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.role-sub{
+  font-family:var(--ui);
+  color:var(--text-dim);
+  font-size:.9rem;
+}
+.role-sub b{color:var(--ivory-shade);font-weight:600}
 
-/* ---------- Miss meter ---------- */
-.miss-meter{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px;min-height:14px}
-.miss-dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--line);background:transparent;transition:background .2s ease,border-color .2s ease}
-.miss-dot.on{background:var(--gold);border-color:var(--gold-bright);box-shadow:0 0 5px rgba(217,174,85,.5)}
+/* ============================================================
+   MISS METER
+   ============================================================ */
+.miss-meter{
+  display:flex;align-items:center;justify-content:center;
+  gap:8px;margin-top:4px;min-height:16px;
+}
+.miss-dot{
+  width:11px;height:11px;border-radius:50%;
+  border:1px solid rgba(181,144,78,.5);
+  background:transparent;
+  transition:background .2s ease, border-color .2s ease;
+}
+.miss-dot.on{
+  background:var(--brass);
+  border-color:var(--brass-hi);
+}
 
-/* ---------- Deck meter ---------- */
-.deck-meter{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
-  padding:14px var(--sp-3);border:1px solid var(--line-soft);border-radius:var(--r-md);background:rgba(0,0,0,.18)}
-.deck-meter .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
-.deck-count{font-family:var(--display);font-size:1.5rem;font-weight:700;color:var(--ivory)}
-.deck-count small{font-size:.85rem;color:var(--text-dim);font-family:var(--ui);font-weight:500}
+/* ============================================================
+   DECK METER
+   ============================================================ */
+.deck-meter{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
+  padding:14px var(--sp-3);
+  border:1px solid rgba(181,144,78,.18);
+  border-radius:var(--r-md);
+  background:rgba(0,0,0,.2);
+}
+.deck-meter .label{
+  font-family:var(--ui);
+  font-size:.72rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  font-weight:600;
+}
+.deck-count{
+  font-family:var(--data);
+  font-size:1.4rem;
+  font-weight:700;
+  color:var(--ivory);
+}
+.deck-count small{
+  font-family:var(--data);
+  font-size:.85rem;
+  color:var(--text-dim);
+  font-weight:400;
+}
 
-/* ---------- Deck progress bar ---------- */
-.deck-bar{height:6px;border-radius:999px;background:rgba(0,0,0,.28);overflow:hidden;margin-top:calc(-1 * var(--sp-2))}
-.deck-bar-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--gold-deep),var(--gold-bright));transition:width .3s ease}
+/* Deck progress bar — inset channel, brass fill */
+.deck-bar{
+  height:5px;
+  border-radius:999px;
+  background:rgba(0,0,0,.38);
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.4);
+  overflow:hidden;
+  margin-top:calc(-1 * var(--sp-2));
+}
+.deck-bar-fill{
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--brass-lo),var(--brass));
+  transition:width .3s ease;
+}
 
-/* ---------- Played-card board (fixed slot per value, A->K) ---------- */
+/* ============================================================
+   BOARD — played cards
+   ============================================================ */
 .board-wrap{display:flex;flex-direction:column;gap:var(--sp-2)}
-.board-wrap .label{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);font-weight:600}
+.board-wrap .label{
+  font-family:var(--ui);
+  font-size:.72rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  font-weight:600;
+}
 .board{
   display:grid;
   grid-template-columns:repeat(7,1fr);
-  gap:6px;
-  padding:6px 2px 4px;
+  gap:5px;
+  padding:4px 0;
 }
+
+/* Engraved slot */
 .value-slot{
   position:relative;
   aspect-ratio:5/7;
-  border-radius:7px;
-  border:1px dashed var(--line-soft);
-  background:rgba(0,0,0,.16);
+  border-radius:6px;
+  border:1px solid var(--brass-lo);
+  background:rgba(0,0,0,.28);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.35), inset 0 1px 0 rgba(0,0,0,.2);
   display:flex;align-items:center;justify-content:center;
 }
 .value-slot .slot-ghost{
-  font-family:var(--display);font-weight:700;font-size:1rem;
-  color:#4d6650;letter-spacing:.02em;
+  font-family:var(--display);
+  font-weight:600;
+  font-size:.95rem;
+  color:rgba(107,79,37,.55);
+  letter-spacing:.03em;
 }
-.value-slot.filled{border-style:solid;border-color:var(--line);background:transparent}
+.value-slot.filled{
+  border-color:rgba(181,144,78,.3);
+  background:transparent;
+  box-shadow:none;
+}
 .value-slot.filled .slot-ghost{display:none}
+
+/* Mini card — aged ivory */
 .mini-card{
-  position:absolute;inset:0;border-radius:7px;
-  background:linear-gradient(160deg,var(--ivory),var(--ivory-2));
-  color:var(--ink);box-shadow:0 3px 8px rgba(0,0,0,.4);
-  font-family:var(--display);font-weight:700;
+  position:absolute;inset:0;
+  border-radius:6px;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.18) 0%, transparent 55%),
+    repeating-linear-gradient(91deg, rgba(0,0,0,.025) 0px, transparent 1px, transparent 4px),
+    var(--ivory);
+  color:var(--ink);
+  box-shadow:0 2px 6px rgba(0,0,0,.45);
+  border:1px solid rgba(33,25,19,.18);
+  font-family:var(--display);
+  font-weight:700;
 }
-.mini-card .mc-v{position:absolute;top:3px;left:5px;font-size:.9rem;line-height:1}
-.mini-card .mc-s{position:absolute;bottom:3px;right:5px;font-size:1rem;line-height:1}
-.mini-card.red{color:var(--red)}
+.mini-card .mc-v{position:absolute;top:2px;left:4px;font-size:.82rem;line-height:1}
+.mini-card .mc-s{position:absolute;bottom:2px;right:4px;font-size:.9rem;line-height:1}
+.mini-card.red{color:var(--card-red)}
+
+/* Brass disc badge */
 .slot-count{
   position:absolute;bottom:-5px;right:-5px;z-index:5;
-  min-width:17px;height:17px;padding:0 4px;border-radius:9px;
-  background:var(--gold);color:#241803;
-  font-family:var(--ui);font-weight:700;font-size:.66rem;
+  min-width:16px;height:16px;padding:0 3px;
+  border-radius:9px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass) 50%,var(--brass-lo));
+  color:var(--ink);
+  font-family:var(--data);
+  font-weight:700;
+  font-size:.6rem;
   display:flex;align-items:center;justify-content:center;
-  box-shadow:0 1px 3px rgba(0,0,0,.5);
+  box-shadow:0 1px 3px rgba(0,0,0,.55);
+  border:1px solid var(--brass-lo);
 }
 
-/* ---------- Value selector ---------- */
+/* ============================================================
+   VALUE SELECTOR GRID
+   ============================================================ */
 .selector{display:flex;flex-direction:column;gap:var(--sp-3)}
 .value-grid{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:8px;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:7px;
 }
 .value-cell{
-  min-height:62px;border-radius:var(--r-sm);
-  background:var(--felt-2);border:1px solid var(--line-soft);
+  min-height:58px;
+  border-radius:var(--r-sm);
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(181,144,78,.22);
   color:var(--text);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;
-  transition:transform .1s ease, background .18s ease, border-color .18s ease, color .18s ease;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  transition:transform .1s ease, background .15s ease, border-color .15s ease;
   -webkit-tap-highlight-color:transparent;
 }
-.value-cell .vc-rank{font-family:var(--display);font-weight:700;font-size:1.25rem;line-height:1}
-.value-cell:active{transform:scale(.94)}
+.value-cell .vc-rank{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.2rem;
+  line-height:1;
+}
+.value-cell:active{transform:scale(.93)}
 .value-cell.selected{
-  background:linear-gradient(180deg,var(--gold-bright),var(--gold));
-  color:#241803;border-color:var(--gold-bright);
-  box-shadow:0 6px 16px rgba(217,174,85,.35);
+  background:linear-gradient(180deg, var(--brass-hi), var(--brass));
+  color:var(--ink);
+  border-color:var(--brass-hi);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 3px rgba(0,0,0,.2);
 }
-.value-cell.out{opacity:.32;cursor:default;border-style:dashed}
-.value-cell.out .vc-rank{text-decoration:line-through;text-decoration-color:var(--red);color:var(--text-dim)}
+.value-cell.out{
+  opacity:.28;
+  cursor:default;
+  border-style:dashed;
+}
+.value-cell.out .vc-rank{
+  text-decoration:line-through;
+  text-decoration-color:var(--card-red);
+  color:var(--text-dim);
+}
 
-/* ---------- Hint (higher / lower) ---------- */
+/* ============================================================
+   HINT (HIGHER / LOWER)
+   ============================================================ */
 .hint{
-  text-align:center;border-radius:var(--r-lg);padding:var(--sp-4) var(--sp-3);
-  border:1px solid var(--line);background:linear-gradient(160deg,var(--felt-3),var(--felt-2));
+  text-align:center;
+  border-radius:var(--r-lg);
+  padding:var(--sp-4) var(--sp-3);
+  border:1px solid rgba(181,144,78,.28);
+  background:rgba(0,0,0,.24);
 }
-.hint .hint-sub{color:var(--text-dim);font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.hint .hint-sub{
+  font-family:var(--ui);
+  color:var(--text-dim);
+  font-size:.72rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  font-weight:600;
+}
 .hint .hint-word{
-  font-family:var(--display);font-weight:800;font-size:clamp(2.8rem,16vw,4rem);
-  line-height:1;letter-spacing:.02em;margin-top:6px;
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(2.5rem,13vw,3.5rem);
+  line-height:1;
+  letter-spacing:.06em;
+  margin-top:6px;
   display:inline-flex;align-items:center;gap:.2em;
+  text-transform:uppercase;
 }
-.hint.higher .hint-word{color:var(--gold-bright)}
-.hint.lower .hint-word{color:var(--red-bright)}
+.hint.higher .hint-word{color:var(--brass)}
+.hint.lower  .hint-word{color:var(--card-red)}
 .hint .arrow{font-size:.7em}
-.hint .prev-guess{margin-top:10px;color:var(--text-dim);font-size:.9rem}
-.hint .prev-guess b{color:var(--ivory-2)}
+.hint .prev-guess{
+  font-family:var(--ui);
+  margin-top:10px;
+  color:var(--text-dim);
+  font-size:.9rem;
+}
+.hint .prev-guess b{color:var(--ivory-shade)}
 
-/* ---------- Full card + flip ---------- */
-.card-stage{display:flex;justify-content:center;padding:var(--sp-2) 0;perspective:1400px}
+/* ============================================================
+   FULL CARD + FLIP
+   ============================================================ */
+.card-stage{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  padding:var(--sp-2) 0;
+  perspective:1400px;
+}
 .card-flip{
-  position:relative;width:200px;height:288px;
-  transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  position:relative;
+  width:200px;height:288px;
+  transform-style:preserve-3d;
+  -webkit-transform-style:preserve-3d;
   transition:transform .75s cubic-bezier(.3,1.2,.4,1);
 }
 .card-flip.down{transform:rotateY(180deg)}
 .card-face{
-  position:absolute;inset:0;border-radius:18px;
-  backface-visibility:hidden;-webkit-backface-visibility:hidden;
-  overflow:hidden;box-shadow:var(--sh-card);
+  position:absolute;inset:0;
+  border-radius:16px;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  overflow:hidden;
+  box-shadow:var(--sh-card);
 }
+
+/* FRONT — aged ivory with paper grain */
 .card-face.front{
   transform:rotateY(0deg);
-  background:linear-gradient(155deg,var(--ivory) 0%,var(--ivory-2) 100%);
+  background:
+    radial-gradient(ellipse at 30% 18%, rgba(255,255,255,.22) 0%, transparent 55%),
+    repeating-linear-gradient(91deg, rgba(0,0,0,.025) 0px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(1deg,  rgba(0,0,0,.018) 0px, transparent 1px, transparent 8px),
+    var(--ivory);
   color:var(--ink);
-  border:1px solid rgba(0,0,0,.15);
+  border:1px solid rgba(33,25,19,.2);
 }
+
+/* BACK — deco guilloché */
 .card-face.back{
   transform:rotateY(180deg);
   background:
-    repeating-linear-gradient(45deg,rgba(217,174,85,.16) 0 7px,transparent 7px 14px),
-    repeating-linear-gradient(-45deg,rgba(217,174,85,.16) 0 7px,transparent 7px 14px),
-    linear-gradient(160deg,#1c4127,var(--felt-3));
-  border:1px solid var(--gold-deep);
+    repeating-linear-gradient( 45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
+    repeating-linear-gradient(-45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
+    var(--felt);
+  border:1px solid var(--brass-lo);
 }
 .card-back-emblem{
-  position:absolute;inset:14px;border:2px solid var(--gold);border-radius:12px;
+  position:absolute;inset:12px;
+  border:1px solid rgba(181,144,78,.55);
+  border-radius:10px;
+  box-shadow:inset 0 0 0 3px rgba(181,144,78,.2);
   display:flex;align-items:center;justify-content:center;
 }
-.card-back-emblem span{font-size:3.4rem;color:var(--gold);opacity:.92}
+.card-back-emblem span{
+  font-size:3.2rem;
+  color:var(--brass);
+  opacity:.8;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
 
-.card-corner{position:absolute;display:flex;flex-direction:column;align-items:center;line-height:1;font-family:var(--display);font-weight:700}
-.card-corner .cc-v{font-size:1.6rem}
-.card-corner .cc-s{font-size:1.3rem;margin-top:2px}
-.card-corner.tl{top:12px;left:14px}
-.card-corner.br{bottom:12px;right:14px;transform:rotate(180deg)}
-.card-center{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-.card-center span{font-size:6.4rem;line-height:1}
-.card-face.red{color:var(--red)}
-.card-face.red .card-center span{color:var(--red)}
+/* Card corners + center */
+.card-corner{
+  position:absolute;
+  display:flex;flex-direction:column;align-items:center;
+  line-height:1;
+  font-family:var(--display);
+  font-weight:700;
+}
+.card-corner .cc-v{font-size:1.5rem}
+.card-corner .cc-s{font-size:1.2rem;margin-top:1px}
+.card-corner.tl{top:10px;left:12px}
+.card-corner.br{bottom:10px;right:12px;transform:rotate(180deg)}
+.card-center{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.card-center span{font-size:6rem;line-height:1}
+.card-face.red{color:var(--card-red)}
+.card-face.red .card-center span{color:var(--card-red)}
 
-/* ---------- Result banner ---------- */
+/* ============================================================
+   RESULT BANNER
+   ============================================================ */
 .banner{
-  text-align:center;border-radius:var(--r-lg);padding:var(--sp-4) var(--sp-3);
-  z-index:var(--z-banner);animation:banner-pop .5s cubic-bezier(.2,.9,.3,1.3) both;
+  text-align:center;
+  border-radius:var(--r-lg);
+  padding:var(--sp-4) var(--sp-3);
+  z-index:var(--z-banner);
+  animation:banner-pop .5s cubic-bezier(.2,.9,.3,1.2) both;
 }
-.banner .b-eyebrow{font-size:.74rem;letter-spacing:.26em;text-transform:uppercase;font-weight:700}
-.banner .b-main{font-family:var(--display);font-weight:800;font-size:clamp(1.7rem,8vw,2.3rem);line-height:1.05;margin-top:6px}
-.banner .b-sub{font-size:.92rem;margin-top:8px;opacity:.85}
+.banner .b-eyebrow{
+  font-family:var(--ui);
+  font-size:.7rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  font-weight:600;
+}
+.banner .b-main{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(1.7rem,8vw,2.3rem);
+  line-height:1.05;
+  margin-top:6px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.banner .b-sub{
+  font-family:var(--ui);
+  font-size:.92rem;
+  margin-top:8px;
+  opacity:.85;
+}
 .banner.win{
-  background:linear-gradient(160deg,rgba(217,174,85,.22),rgba(217,174,85,.06));
-  border:1px solid var(--gold);
+  background:rgba(0,0,0,.22);
+  border:1px solid var(--brass-lo);
 }
-.banner.win .b-eyebrow{color:var(--gold-bright)}
+.banner.win .b-eyebrow{color:var(--brass)}
 .banner.win .b-main{color:var(--ivory)}
-.banner.win .b-sub{color:var(--gold-bright)}
+.banner.win .b-sub{color:var(--brass-hi)}
 .banner.penalty{
-  background:linear-gradient(160deg,rgba(178,58,46,.26),rgba(178,58,46,.07));
-  border:1px solid var(--red);
-  animation:banner-pop .5s cubic-bezier(.2,.9,.3,1.3) both, banner-pulse 1.4s ease-in-out .5s 2;
+  background:rgba(0,0,0,.22);
+  border:1px solid rgba(156,42,36,.65);
 }
-.banner.penalty .b-eyebrow{color:var(--red-bright)}
+.banner.penalty .b-eyebrow{color:var(--card-red)}
 .banner.penalty .b-main{color:var(--ivory)}
-.banner.penalty .b-sub{color:var(--red-bright)}
-.drink-num{font-family:var(--display);font-size:1.15em;color:var(--gold-bright)}
-.banner.penalty .drink-num{color:var(--red-bright)}
+.banner.penalty .b-sub{color:rgba(236,226,201,.7)}
+.drink-num{
+  font-family:var(--data);
+  font-size:1.1em;
+  color:var(--brass);
+  font-weight:700;
+}
+.banner.penalty .drink-num{color:var(--card-red)}
 
-@keyframes banner-pop{from{opacity:0;transform:scale(.9) translateY(10px)}to{opacity:1;transform:none}}
-@keyframes banner-pulse{0%,100%{box-shadow:0 0 0 0 rgba(178,58,46,0)}50%{box-shadow:0 0 0 8px rgba(178,58,46,.18)}}
+@keyframes banner-pop{
+  from{opacity:0;transform:scale(.93) translateY(8px)}
+  to{opacity:1;transform:none}
+}
 
-/* ---------- Rotate / pass phone ---------- */
-.pass{text-align:center;display:flex;flex-direction:column;gap:var(--sp-3);align-items:center;justify-content:center;flex:1}
-.pass-chip{font-size:3.2rem}
-.pass .pass-label{color:var(--text-dim);letter-spacing:.2em;text-transform:uppercase;font-size:.82rem;font-weight:600}
-.pass .pass-name{font-family:var(--display);font-weight:800;font-size:clamp(2.6rem,13vw,3.6rem);color:var(--gold-bright);line-height:1.02;word-break:break-word}
-.pass .pass-note{color:var(--text-dim);font-size:.92rem;max-width:28ch}
+/* ============================================================
+   ROTATE / PASS SCREEN
+   ============================================================ */
+.pass{
+  text-align:center;
+  display:flex;flex-direction:column;
+  gap:var(--sp-3);
+  align-items:center;justify-content:center;
+  flex:1;
+}
 
-/* ---------- Game over / receipt ---------- */
-.gover-wrap{display:flex;flex-direction:column;justify-content:center;align-items:center;flex:1;padding:var(--sp-2) 0}
+/* Mini card-back tile replacing the playing card emoji */
+.pass-chip{
+  width:52px;height:72px;
+  border-radius:8px;
+  border:1px solid var(--brass-lo);
+  background:
+    repeating-linear-gradient( 45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px, rgba(181,144,78,.14) 8px, transparent 9px, transparent 16px),
+    repeating-linear-gradient(-45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px, rgba(181,144,78,.14) 8px, transparent 9px, transparent 16px),
+    var(--felt);
+  box-shadow:0 4px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(236,212,154,.1);
+  display:flex;align-items:center;justify-content:center;
+}
+.pass-chip::after{
+  content:'♠';
+  font-size:1.5rem;
+  color:var(--brass);
+  opacity:.75;
+}
+
+.pass .pass-label{
+  font-family:var(--ui);
+  color:var(--text-dim);
+  letter-spacing:.22em;
+  text-transform:uppercase;
+  font-size:.8rem;
+  font-weight:600;
+}
+.pass .pass-name{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:clamp(2rem,10vw,2.9rem);
+  color:var(--brass);
+  line-height:1.04;
+  overflow-wrap:break-word;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+.pass .pass-note{
+  font-family:var(--ui);
+  color:var(--text-dim);
+  font-size:.9rem;
+  max-width:30ch;
+}
+
+/* ============================================================
+   GAME-OVER RECEIPT
+   ============================================================ */
+.gover-wrap{
+  display:flex;flex-direction:column;
+  justify-content:center;align-items:center;
+  flex:1;padding:var(--sp-2) 0;
+}
+
+/* Torn / perforated edge via clip-path masks */
 .receipt{
-  width:100%;max-width:330px;
-  background:linear-gradient(170deg,var(--ivory),var(--ivory-2));
+  width:100%;max-width:320px;
+  position:relative;
+  /* aged paper grain */
+  background:
+    radial-gradient(ellipse at 28% 12%, rgba(255,255,255,.25) 0%, transparent 55%),
+    repeating-linear-gradient(91deg, rgba(0,0,0,.028) 0px, transparent 1px, transparent 5px),
+    repeating-linear-gradient(1deg,  rgba(0,0,0,.022) 0px, transparent 1px, transparent 9px),
+    var(--ivory);
   color:var(--ink);
-  border-radius:4px;
+  border-radius:0;
   box-shadow:var(--sh-card);
-  transform:rotate(-1.1deg);
+  transform:rotate(-1deg);
   padding:var(--sp-4) var(--sp-3) var(--sp-3);
   display:flex;flex-direction:column;gap:var(--sp-2);
+  /* perforated top + bottom via mask */
+  -webkit-mask-image:
+    radial-gradient(circle at 0px 0px,       transparent 6px, black 6px),
+    radial-gradient(circle at 100% 0px,      transparent 6px, black 6px),
+    radial-gradient(circle at 0px 100%,      transparent 6px, black 6px),
+    radial-gradient(circle at 100% 100%,     transparent 6px, black 6px),
+    /* top torn edge — repeating triangles */
+    repeating-linear-gradient(90deg, transparent 0px, transparent 6px, black 6px, black 18px),
+    /* bottom torn edge */
+    repeating-linear-gradient(90deg, transparent 0px, transparent 6px, black 6px, black 18px),
+    linear-gradient(black, black);
+  -webkit-mask-position:top left, top right, bottom left, bottom right, top center, bottom center, center;
+  -webkit-mask-size:50% 50%, 50% 50%, 50% 50%, 50% 50%, 100% 10px, 100% 10px, 100% calc(100% - 10px);
+  -webkit-mask-repeat:no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+  mask-image:
+    radial-gradient(circle at 0px 0px,       transparent 6px, black 6px),
+    radial-gradient(circle at 100% 0px,      transparent 6px, black 6px),
+    radial-gradient(circle at 0px 100%,      transparent 6px, black 6px),
+    radial-gradient(circle at 100% 100%,     transparent 6px, black 6px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 6px, black 6px, black 18px),
+    repeating-linear-gradient(90deg, transparent 0px, transparent 6px, black 6px, black 18px),
+    linear-gradient(black, black);
+  mask-position:top left, top right, bottom left, bottom right, top center, bottom center, center;
+  mask-size:50% 50%, 50% 50%, 50% 50%, 50% 50%, 100% 10px, 100% 10px, 100% calc(100% - 10px);
+  mask-repeat:no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
 }
-.rcpt-head{text-align:center;display:flex;flex-direction:column;gap:4px;margin-bottom:var(--sp-1)}
-.rcpt-star{font-family:var(--mono);font-size:.7rem;letter-spacing:.18em;color:var(--gold-deep);font-weight:700}
-.rcpt-title{font-family:var(--display);font-weight:800;font-size:1.5rem;letter-spacing:.01em;color:var(--ink)}
-.rcpt-meta{font-family:var(--mono);font-size:.7rem;color:rgba(27,19,12,.7);letter-spacing:.04em}
-.rcpt-rule{border:none;border-top:1px dashed rgba(27,19,12,.45);margin:var(--sp-1) 0}
-.rcpt-row{display:flex;align-items:baseline;gap:6px;font-family:var(--mono);font-size:.9rem;color:var(--ink)}
-.rcpt-row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
-.rcpt-row .ldr{flex:1;border-bottom:1px dotted rgba(27,19,12,.4);transform:translateY(-3px)}
+.rcpt-head{
+  text-align:center;
+  display:flex;flex-direction:column;
+  gap:4px;margin-bottom:var(--sp-1);
+}
+.rcpt-star{
+  font-family:var(--data);
+  font-size:.68rem;
+  letter-spacing:.2em;
+  color:var(--brass-lo);
+  font-weight:700;
+}
+.rcpt-title{
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.6rem;
+  letter-spacing:.01em;
+  color:var(--ink);
+}
+.rcpt-meta{
+  font-family:var(--data);
+  font-size:.68rem;
+  color:rgba(33,25,19,.65);
+  letter-spacing:.04em;
+}
+.rcpt-rule{
+  border:none;
+  border-top:1px dashed rgba(33,25,19,.4);
+  margin:var(--sp-1) 0;
+}
+.rcpt-row{
+  display:flex;align-items:baseline;gap:5px;
+  font-family:var(--data);
+  font-size:.88rem;
+  color:var(--ink);
+}
+.rcpt-row .nm{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%;
+}
+.rcpt-row .ldr{
+  flex:1;
+  border-bottom:1px dotted rgba(33,25,19,.35);
+  transform:translateY(-3px);
+}
 .rcpt-row .amt{white-space:nowrap;font-weight:700}
 .rcpt-row.total{font-weight:700;letter-spacing:.02em}
-.rcpt-awards{display:flex;flex-direction:column;gap:4px;margin-top:var(--sp-1);font-family:var(--mono);font-size:.82rem;color:var(--ink)}
+.rcpt-awards{
+  display:flex;flex-direction:column;gap:4px;
+  margin-top:var(--sp-1);
+  font-family:var(--data);
+  font-size:.8rem;
+  color:var(--ink);
+}
 .rcpt-award{display:flex;gap:6px;align-items:baseline}
-.rcpt-closer{text-align:center;font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;color:var(--gold-deep);font-weight:700;margin-top:var(--sp-2)}
+
+/* Ink-stamp closer */
+.rcpt-closer{
+  text-align:center;
+  font-family:var(--data);
+  font-size:.68rem;
+  letter-spacing:.16em;
+  color:var(--card-red);
+  font-weight:700;
+  margin-top:var(--sp-2);
+  display:inline-block;
+  width:100%;
+  border:1px double rgba(156,42,36,.6);
+  padding:3px 8px;
+  transform:rotate(-1.5deg);
+  opacity:.85;
+}
 
 .center-block{display:flex;flex-direction:column;justify-content:center;flex:1;gap:var(--sp-4)}
 
-/* ---------- The Tab ---------- */
-.tab-list{list-style:none;display:flex;flex-direction:column;gap:6px;padding:6px 2px 2px}
-.tab-row{display:flex;align-items:center;gap:var(--sp-2);padding:10px var(--sp-3);border:1px solid var(--line-soft);border-radius:var(--r-md);background:rgba(0,0,0,.18)}
-.tab-row--lead{border-color:var(--line);background:linear-gradient(160deg,rgba(217,174,85,.12),rgba(217,174,85,.03))}
-.tab-rank{font-family:var(--display);font-weight:700;color:var(--text-dim);font-size:.95rem;width:1.4em;text-align:center;flex:0 0 auto}
-.tab-row--lead .tab-rank{color:var(--gold)}
-.tab-name{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tab-count{font-family:var(--display);font-weight:700;font-size:1.2rem;color:var(--ivory)}
-.tab-row--lead .tab-count{color:var(--gold-bright)}
+/* ============================================================
+   THE TAB LIST
+   ============================================================ */
+.tab-list{list-style:none;display:flex;flex-direction:column;gap:4px;padding:4px 0}
+.tab-row{
+  display:flex;align-items:center;gap:var(--sp-2);
+  padding:10px var(--sp-3);
+  border:none;
+  border-top:1px solid rgba(181,144,78,.14);
+  background:transparent;
+}
+.tab-row:first-child{border-top:none}
+.tab-row--lead{
+  background:rgba(181,144,78,.07);
+  border-color:rgba(181,144,78,.22);
+  border-radius:var(--r-sm);
+  border-top-style:solid;
+}
+.tab-rank{
+  font-family:var(--data);
+  font-weight:700;
+  color:var(--text-dim);
+  font-size:.9rem;
+  width:1.4em;
+  text-align:center;
+  flex:0 0 auto;
+}
+.tab-row--lead .tab-rank{color:var(--brass)}
+.tab-name{
+  flex:1;
+  font-family:var(--ui);
+  font-weight:500;
+  color:var(--text);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.tab-count{
+  font-family:var(--data);
+  font-weight:700;
+  font-size:1.15rem;
+  color:var(--ivory-shade);
+}
+.tab-row--lead .tab-count{color:var(--brass)}
 
-/* ---------- Deck stack ---------- */
+/* Lead marker */
+.lead-mark{
+  font-size:.8em;
+  margin-right:.15em;
+  vertical-align:.05em;
+  color:var(--brass);
+}
+
+/* ============================================================
+   DECK STACK (mini card-back tiles)
+   ============================================================ */
 .deck-stack{position:relative;width:38px;height:54px;flex:0 0 38px}
 .deck-stack .ds-tile{
   position:absolute;width:38px;height:54px;border-radius:5px;
   background:
-    repeating-linear-gradient(45deg,rgba(217,174,85,.18) 0 5px,transparent 5px 10px),
-    repeating-linear-gradient(-45deg,rgba(217,174,85,.18) 0 5px,transparent 5px 10px),
-    linear-gradient(160deg,#1c4127,var(--felt-3));
-  border:1px solid var(--gold-deep);
+    repeating-linear-gradient( 45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px),
+    repeating-linear-gradient(-45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px),
+    var(--felt);
+  border:1px solid var(--brass-lo);
   display:flex;align-items:center;justify-content:center;
 }
-.deck-stack .ds-tile span{font-size:1.1rem;color:var(--gold);opacity:.85}
+.deck-stack .ds-tile span{font-size:1.1rem;color:var(--brass);opacity:.75}
 .deck-stack .ds-tile:nth-child(1){transform:translate(0px,0px);z-index:1}
 .deck-stack .ds-tile:nth-child(2){transform:translate(2px,-2px);z-index:2}
 .deck-stack .ds-tile:nth-child(3){transform:translate(4px,-4px);z-index:3}
 
-/* ---------- Deal overlay / animation ---------- */
+/* ============================================================
+   DEAL OVERLAY / ANIMATION
+   ============================================================ */
 .deal-overlay{
   position:fixed;inset:0;z-index:100;
   display:flex;align-items:center;justify-content:center;
@@ -468,21 +996,23 @@ input{font-family:inherit}
 }
 .deal-overlay.active{visibility:visible}
 .deal-card{
-  width:200px;height:288px;border-radius:18px;
+  position:relative;
+  width:200px;height:288px;border-radius:16px;
   background:
-    repeating-linear-gradient(45deg,rgba(217,174,85,.16) 0 7px,transparent 7px 14px),
-    repeating-linear-gradient(-45deg,rgba(217,174,85,.16) 0 7px,transparent 7px 14px),
-    linear-gradient(160deg,#1c4127,var(--felt-3));
-  border:1px solid var(--gold-deep);
+    repeating-linear-gradient( 45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
+    repeating-linear-gradient(-45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
+    var(--felt);
+  border:1px solid var(--brass-lo);
   box-shadow:var(--sh-card);
   display:flex;align-items:center;justify-content:center;
 }
 .deal-card .dc-emblem{
-  position:absolute;inset:14px;border:2px solid var(--gold);border-radius:12px;
+  position:absolute;inset:12px;
+  border:1px solid rgba(181,144,78,.5);
+  border-radius:10px;
   display:flex;align-items:center;justify-content:center;
 }
-.deal-card .dc-emblem span{font-size:3.4rem;color:var(--gold);opacity:.92}
-.deal-card{position:relative}
+.deal-card .dc-emblem span{font-size:3.2rem;color:var(--brass);opacity:.8}
 .deal-card.animating{animation:deal-fly .7s cubic-bezier(.15,1.4,.4,1) both}
 
 @keyframes deal-fly{
@@ -490,152 +1020,136 @@ input{font-family:inherit}
   to{transform:translate(0,0) scale(1) rotate(0deg);opacity:1}
 }
 
-/* ---------- Sound toggle button ---------- */
+/* ============================================================
+   SOUND TOGGLE
+   ============================================================ */
 .sound-toggle{
   position:fixed;
-  top:calc(env(safe-area-inset-top) + 10px);
-  right:calc(env(safe-area-inset-right) + 10px);
-  z-index:8;
-  width:44px;height:44px;
+  top:calc(env(safe-area-inset-top) + var(--rail-size) + 8px);
+  right:calc(env(safe-area-inset-right) + var(--rail-size) + 8px);
+  z-index:calc(var(--z-frame) + 1);
+  width:40px;height:40px;
   border-radius:50%;
-  background:rgba(13,31,15,.72);
-  border:1px solid var(--line);
-  color:var(--gold);
-  font-size:1.35rem;
+  background:linear-gradient(180deg, var(--brass-hi), var(--brass) 40%, var(--brass-lo));
+  border:1px solid var(--brass-lo);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 2px 6px rgba(0,0,0,.5);
+  color:var(--ink);
   display:flex;align-items:center;justify-content:center;
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
-  backdrop-filter:blur(4px);
-  -webkit-backdrop-filter:blur(4px);
-  transition:background .18s ease, color .18s ease;
+  transition:box-shadow .12s ease, transform .1s ease;
 }
-.sound-toggle:active{background:var(--felt-3)}
-.sound-toggle[aria-pressed="true"]{color:var(--gold-bright)}
-.sound-toggle[aria-pressed="false"]{color:var(--text-dim)}
+.sound-toggle:active{
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.4);
+  transform:translateY(1px);
+}
 
-/* ---------- Focus-visible ring ---------- */
+/* ============================================================
+   CELEBRATION — brass glint (win) + wax stamp (loss)
+   ============================================================ */
+
+/* Brass specular sheen that sweeps once across the revealed card.
+   The wrapper clips to the card so the sheen stays on the ivory. */
+.card-glint{
+  position:absolute;
+  top:50%;left:50%;
+  width:200px;height:288px;
+  transform:translate(-50%,-50%);
+  border-radius:16px;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:6;
+}
+.card-glint::before{
+  content:'';
+  position:absolute;
+  top:-20%;left:0;
+  width:100%;height:140%;
+  background:linear-gradient(115deg,
+    transparent 30%,
+    rgba(255,255,255,0) 35%,
+    rgba(236,212,154,.55) 50%,
+    rgba(255,255,255,.85) 53%,
+    rgba(236,212,154,0) 70%);
+  transform:translateX(-120%);
+  animation:glint-sweep .7s ease-out forwards;
+}
+@keyframes glint-sweep{
+  from{transform:translateX(-120%)}
+  to{transform:translateX(120%)}
+}
+
+/* Deep-red wax seal pressed onto the card, reading SCREWED. */
+.wax-stamp{
+  position:fixed;
+  left:50%;top:38%;
+  width:150px;height:150px;
+  transform:translate(-50%,-50%) scale(1) rotate(-9deg);
+  border-radius:48% 52% 51% 49% / 50% 49% 51% 50%;
+  background:radial-gradient(circle at 38% 32%, #b8443c, #7e211b 58%, #4e120e);
+  box-shadow:
+    0 6px 14px rgba(0,0,0,.55),
+    inset 0  2px 4px rgba(255,255,255,.18),
+    inset 0 -5px 9px rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;
+  pointer-events:none;
+  z-index:55;
+  font-family:var(--display);
+  font-weight:700;
+  font-size:1.45rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:#5a160f;
+  text-shadow:0 1px 0 rgba(255,255,255,.16);
+  animation:wax-press .55s cubic-bezier(.2,1.3,.4,1) both;
+}
+@keyframes wax-press{
+  from{transform:translate(-50%,-50%) scale(1.6) rotate(-9deg);opacity:0}
+  to{transform:translate(-50%,-50%) scale(1) rotate(-9deg);opacity:1}
+}
+
+/* ============================================================
+   FOCUS-VISIBLE RINGS (brass)
+   ============================================================ */
 .btn:focus-visible,
 .value-cell:focus-visible,
 .tab-name-editable:focus-visible,
 .sound-toggle:focus-visible,
 summary:focus-visible,
 .player-remove:focus-visible{
-  outline:2px solid var(--gold-bright);
+  outline:2px solid var(--brass-hi);
   outline-offset:2px;
 }
 
-/* ---------- Editable tab name affordance ---------- */
+/* ============================================================
+   EDITABLE TAB NAME
+   ============================================================ */
 .tab-name-editable{
   cursor:pointer;
-  border-bottom:1px dashed rgba(217,174,85,.4);
+  border-bottom:1px dashed rgba(181,144,78,.35);
   border-radius:0;
   padding-bottom:1px;
 }
-.tab-name-editable:hover{border-bottom-color:var(--gold)}
+.tab-name-editable:hover{border-bottom-color:var(--brass)}
 .tab-name-inline-input{
   flex:1;
-  background:var(--felt-2);
-  border:1px solid var(--gold);
+  background:rgba(0,0,0,.28);
+  border:1px solid var(--brass);
   border-radius:var(--r-sm);
   color:var(--text);
   font-size:.95rem;
   font-family:var(--ui);
-  font-weight:600;
+  font-weight:500;
   padding:2px 8px;
   min-height:0;
   outline:none;
   max-width:100%;
 }
 
-/* ---------- Celebration overlay & chip burst ---------- */
-.celeb-overlay{
-  position:fixed;inset:0;
-  z-index:50;
-  pointer-events:none;
-  overflow:hidden;
-}
-
-/* Gold glow behind card on dealer win */
-.celeb-glow{
-  position:fixed;
-  left:50%;top:35%;
-  transform:translate(-50%,-50%);
-  width:340px;height:340px;
-  border-radius:50%;
-  background:radial-gradient(ellipse at center, rgba(217,174,85,.52) 0%, rgba(217,174,85,.0) 70%);
-  pointer-events:none;
-  animation:celeb-glow-in .45s ease both;
-}
-@keyframes celeb-glow-in{
-  from{opacity:0;transform:translate(-50%,-50%) scale(.4)}
-  to{opacity:1;transform:translate(-50%,-50%) scale(1)}
-}
-
-/* Chip particle */
-.chip{
-  position:fixed;
-  left:50%;top:38%;
-  width:20px;height:20px;
-  border-radius:50%;
-  background:radial-gradient(circle at 35% 35%, var(--gold-bright), var(--gold-deep));
-  border:2px solid var(--gold-bright);
-  box-shadow:0 0 6px rgba(217,174,85,.6);
-  transform-origin:center center;
-  pointer-events:none;
-  animation:chip-burst .9s cubic-bezier(.2,1.3,.5,1) both;
-}
-.chip-lg{width:26px;height:26px}
-@keyframes chip-burst{
-  0%{transform:translate(-50%,-50%) translate(0,0) scale(0) rotate(0deg);opacity:0}
-  15%{opacity:1}
-  100%{transform:translate(-50%,-50%) translate(calc(var(--dx)*1px),calc(var(--dy)*1px)) scale(1) rotate(calc(var(--rot)*1deg));opacity:0}
-}
-
-/* SCREWED stamp */
-.screwed-stamp{
-  position:fixed;
-  left:50%;top:42%;
-  transform:translate(-50%,-50%) rotate(-14deg) scale(0);
-  font-family:var(--display);
-  font-weight:800;
-  font-size:clamp(2.6rem,12vw,3.6rem);
-  letter-spacing:.12em;
-  text-transform:uppercase;
-  color:var(--gold-bright);
-  text-shadow:0 0 18px rgba(217,174,85,.55), 2px 2px 0 rgba(0,0,0,.5);
-  border:4px solid var(--gold);
-  border-radius:8px;
-  padding:6px 20px;
-  white-space:nowrap;
-  pointer-events:none;
-  animation:stamp-in .35s cubic-bezier(.2,1.4,.4,1) .22s both;
-  z-index:55;
-}
-.screwed-stamp.stamp-lg{
-  font-size:clamp(3rem,14vw,4.2rem);
-  border-width:5px;
-}
-@keyframes stamp-in{
-  from{transform:translate(-50%,-50%) rotate(-14deg) scale(2.2);opacity:0}
-  to{transform:translate(-50%,-50%) rotate(-14deg) scale(1);opacity:1}
-}
-
-/* Red penalty vignette */
-.penalty-vignette{
-  position:fixed;inset:0;
-  border-radius:0;
-  box-shadow:inset 0 0 80px 20px rgba(178,58,46,.55);
-  pointer-events:none;
-  animation:vignette-pulse .9s ease-out both;
-  z-index:52;
-}
-@keyframes vignette-pulse{
-  0%{opacity:0}
-  30%{opacity:1}
-  100%{opacity:0}
-}
-
-/* ---------- Reduced motion ---------- */
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
 @media (prefers-reduced-motion:reduce){
   .screen{animation:none}
   .card-flip{transition:none}
@@ -643,11 +1157,8 @@ summary:focus-visible,
   .btn:active,.value-cell:active{transform:none}
   .deal-overlay{display:none}
   .deal-card{animation:none}
-  .chip{animation:none;display:none}
-  .celeb-glow{animation:none;opacity:0;display:none}
-  .penalty-vignette{animation:none;display:none}
-  .screwed-stamp{animation:none;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}
   .deck-bar-fill{transition:none}
+  .wax-stamp{animation:none}
 }
 </style>
 </head>
@@ -791,7 +1302,7 @@ summary:focus-visible,
   <!-- ROTATE / pass the phone -->
   <section class="screen" data-screen="rotate">
     <div class="pass">
-      <span class="pass-chip">🂠</span>
+      <div class="pass-chip" aria-hidden="true"></div>
       <span class="pass-label" id="rotateLabel">Pass the phone to</span>
       <span class="pass-name" id="rotateName"></span>
       <p class="pass-note" id="rotateNote">Don't let anyone peek.</p>
@@ -813,7 +1324,7 @@ summary:focus-visible,
   </section>
 
   <!-- SOUND TOGGLE -->
-  <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true" aria-label="Sound on">🔊</button>
+  <button class="sound-toggle" id="soundToggle" type="button" aria-pressed="true" aria-label="Sound on"></button>
 
   <!-- DEAL OVERLAY -->
   <div class="deal-overlay" id="dealOverlay">
@@ -821,6 +1332,9 @@ summary:focus-visible,
       <div class="dc-emblem"><span>♠</span></div>
     </div>
   </div>
+
+  <!-- BRASS RAIL FRAME -->
+  <div id="table-frame" aria-hidden="true"></div>
 
 </div>
 
@@ -1244,10 +1758,24 @@ summary:focus-visible,
 
   /* ----- Mute toggle UI wiring ----- */
   var soundToggle = document.getElementById('soundToggle');
+
+  var SVG_SOUND_ON =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path d="M3 6.5H6L10 3v12l-4-3.5H3V6.5Z" fill="currentColor"/>' +
+    '<path d="M12 6a3.5 3.5 0 0 1 0 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>' +
+    '<path d="M13.5 4.5a6 6 0 0 1 0 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>' +
+    '</svg>';
+
+  var SVG_SOUND_OFF =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+    '<path d="M3 6.5H6L10 3v12l-4-3.5H3V6.5Z" fill="currentColor"/>' +
+    '<path d="M13 7l2.5 4M15.5 7L13 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>' +
+    '</svg>';
+
   function updateSoundToggleUI(){
     soundToggle.setAttribute('aria-pressed', _muted ? 'false' : 'true');
     soundToggle.setAttribute('aria-label', _muted ? 'Sound off' : 'Sound on');
-    soundToggle.textContent = _muted ? '🔇' : '🔊';
+    soundToggle.innerHTML = _muted ? SVG_SOUND_OFF : SVG_SOUND_ON;
   }
   updateSoundToggleUI();
   soundToggle.addEventListener('click', function(){
@@ -1263,50 +1791,27 @@ summary:focus-visible,
 
   /* ============ CELEBRATION HELPERS ============ */
   function clearCelebration(){
-    var existing = document.querySelectorAll('.celeb-overlay, .celeb-glow, .chip, .screwed-stamp, .penalty-vignette');
+    var existing = document.querySelectorAll('.card-glint, .wax-stamp');
     for(var i=0;i<existing.length;i++){ existing[i].parentNode && existing[i].parentNode.removeChild(existing[i]); }
   }
 
-  function spawnChips(amount){
-    // amount 4 = 20 chips, amount 2 = 12 chips
-    var count = amount === 4 ? 20 : 12;
-    var isLg = amount === 4;
-    var app = document.getElementById('app');
-    for(var i=0;i<count;i++){
-      var chip = document.createElement('div');
-      chip.className = 'chip' + (isLg ? ' chip-lg' : '');
-      var angle = (i / count) * 2 * Math.PI + (Math.random()-.5)*.5;
-      var dist = 80 + Math.random() * (isLg ? 160 : 110);
-      var dx = Math.round(Math.cos(angle) * dist);
-      var dy = Math.round(Math.sin(angle) * dist - 60);
-      var rot = Math.round((Math.random()-0.5)*720);
-      var delay = (Math.random() * 0.12).toFixed(3);
-      chip.style.cssText = '--dx:'+dx+';--dy:'+dy+';--rot:'+rot+';animation-delay:'+delay+'s';
-      app.appendChild(chip);
-      (function(el){ setTimeout(function(){ el.parentNode && el.parentNode.removeChild(el); }, 1100); })(chip);
-    }
+  // WIN: a single brass sheen sweeps once across the revealed card.
+  function spawnGlint(){
+    var stage = document.querySelector('.screen[data-screen="reveal"] .card-stage');
+    if(!stage) return;
+    var glint = document.createElement('div');
+    glint.className = 'card-glint';
+    stage.appendChild(glint);
+    setTimeout(function(){ glint.parentNode && glint.parentNode.removeChild(glint); }, 900);
   }
 
-  function spawnGlow(){
-    var glow = document.createElement('div');
-    glow.className = 'celeb-glow';
-    document.getElementById('app').appendChild(glow);
-    setTimeout(function(){ glow.parentNode && glow.parentNode.removeChild(glow); }, 900);
-  }
-
-  function spawnStamp(isLarge){
+  // LOSS: a deep-red wax seal presses onto the card reading SCREWED.
+  function spawnWaxStamp(){
     var stamp = document.createElement('div');
-    stamp.className = 'screwed-stamp' + (isLarge ? ' stamp-lg' : '');
+    stamp.className = 'wax-stamp';
     stamp.textContent = 'SCREWED';
     document.getElementById('app').appendChild(stamp);
-    setTimeout(function(){ stamp.parentNode && stamp.parentNode.removeChild(stamp); }, 1800);
-  }
-
-  function spawnVignette(){
-    var vig = document.createElement('div');
-    vig.className = 'penalty-vignette';
-    document.getElementById('app').appendChild(vig);
-    setTimeout(function(){ vig.parentNode && vig.parentNode.removeChild(vig); }, 950);
+    setTimeout(function(){ stamp.parentNode && stamp.parentNode.removeChild(stamp); }, 1500);
   }
 
   /* ----- Setup ----- */
@@ -1547,29 +2052,27 @@ summary:focus-visible,
       banner.innerHTML =
         '<div class="b-eyebrow">'+(r.attempt===1?'Called it':'Caught it on two')+'</div>' +
         '<div class="b-main">It was the '+label+'</div>' +
-        '<div class="b-sub">'+escName(state.players[state.dealerIndex])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab</div>';
+        '<div class="b-sub">'+escName(state.players[state.dealerIndex])+' drinks <span class="drink-num">'+r.amount+'</span> &middot; <span class="drink-num">'+r.total+'</span> on the tab</div>';
       buzz([20,60,20]);
       // level 2 = amount 4 (first call), level 1 = amount 2 (second call)
       var winLevel = r.amount === 4 ? 2 : 1;
       sfxWin(winLevel);
+      // Sheen sweeps once after the flip settles (~750ms); pointless when static.
       if(!prefersReducedMotion){
-        spawnGlow();
-        spawnChips(r.amount);
-        spawnStamp(r.amount === 4);
-      }else{
-        spawnStamp(r.amount === 4);
+        setTimeout(spawnGlint, 750);
       }
     }else{
       var streak = state.missStreak || 0;
-      var streakNote = streak >= 3 ? ' · deal passes next' : (streak > 1 ? ' · ' + streak + ' in a row' : '');
+      var streakNote = streak >= 3 ? ' \xb7 deal passes next' : (streak > 1 ? ' \xb7 ' + streak + ' in a row' : '');
       banner.className = 'banner penalty';
       banner.innerHTML =
         '<div class="b-eyebrow">Missed it</div>' +
         '<div class="b-main">It was the '+label+'</div>' +
-        '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> · <span class="drink-num">'+r.total+'</span> on the tab'+escName(streakNote)+'</div>';
+        '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> \xb7 <span class="drink-num">'+r.total+'</span> on the tab'+escName(streakNote)+'</div>';
       buzz([60,40,60]);
       sfxPenalty();
-      if(!prefersReducedMotion){ spawnVignette(); }
+      // Wax SCREWED stamp; under reduced motion the CSS makes it appear instantly.
+      spawnWaxStamp();
     }
   }
 
@@ -1596,7 +2099,7 @@ summary:focus-visible,
         if(pile.length > 1){
           var badge = document.createElement('span');
           badge.className = 'slot-count';
-          badge.textContent = '×' + pile.length;
+          badge.textContent = '\xd7' + pile.length;
           slot.appendChild(badge);
         }
       }else{
@@ -1702,7 +2205,11 @@ summary:focus-visible,
 
       var countEl = document.createElement('span');
       countEl.className = 'tab-count';
-      countEl.textContent = (isLead ? '👑 ' : '') + state.tally[idx];
+      if(isLead){
+        countEl.innerHTML = '<span class="lead-mark">✶</span>' + state.tally[idx];
+      }else{
+        countEl.textContent = state.tally[idx];
+      }
 
       li.appendChild(rankEl);
       li.appendChild(nameEl);
@@ -1727,14 +2234,14 @@ summary:focus-visible,
     head.className = 'rcpt-head';
     var star = document.createElement('div');
     star.className = 'rcpt-star';
-    star.textContent = '★ SCREW THE DEALER ★';
+    star.textContent = '✶ SCREW THE DEALER ✶';
     var title = document.createElement('div');
     title.className = 'rcpt-title';
     title.textContent = 'BAR TAB — LAST CALL';
     var d = new Date();
     var meta = document.createElement('div');
     meta.className = 'rcpt-meta';
-    meta.textContent = d.toLocaleDateString() + ' · Table of ' + state.players.length;
+    meta.textContent = d.toLocaleDateString() + ' \xb7 Table of ' + state.players.length;
     head.appendChild(star);
     head.appendChild(title);
     head.appendChild(meta);
@@ -1832,12 +2339,12 @@ summary:focus-visible,
 
       var leastRow = document.createElement('div');
       leastRow.className = 'rcpt-award';
-      leastRow.textContent = '👑 LEAST DAMAGE: ' + winnersLabel(minVal);
+      leastRow.textContent = 'LEAST DAMAGE — ' + winnersLabel(minVal);
       awards.appendChild(leastRow);
 
       var mostRow = document.createElement('div');
       mostRow.className = 'rcpt-award';
-      mostRow.textContent = '🍺 BIGGEST TAB: ' + winnersLabel(maxVal);
+      mostRow.textContent = 'BIGGEST TAB — ' + winnersLabel(maxVal);
       awards.appendChild(mostRow);
     }
 
@@ -1908,7 +2415,7 @@ summary:focus-visible,
       var nextGuesserIdx = nextGuesserIndex();
       labelEl.textContent = 'Pass the phone to';
       nameEl.textContent = state.players[state.dealerIndex];
-      noteEl.textContent = "Same dealer. " + state.players[nextGuesserIdx] + " calls the next card. Don't let anyone peek.";
+      noteEl.textContent = 'Same dealer. ' + state.players[nextGuesserIdx] + ' calls the next card. Don’t let anyone peek.';
     }
   }
 
