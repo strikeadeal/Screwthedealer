@@ -40,10 +40,7 @@
   --sh-card:0 18px 40px rgba(0,0,0,.65), 0 3px 8px rgba(0,0,0,.45);
   --sh-pop:0 10px 30px rgba(0,0,0,.55);
 
-  --z-screen:1; --z-banner:5; --z-toast:9; --z-frame:40;
-
-  /* Rail geometry — adjust if safe area insets shift */
-  --rail-size:22px;
+  --z-screen:1; --z-banner:5; --z-toast:9; --z-float:40;
 
   /* Safe-area insets hoisted to variables so the full-screen height math stays
      consistent (and so a test harness can override them to simulate a device). */
@@ -80,29 +77,6 @@ button{font-family:inherit;color:inherit;border:none;background:none;cursor:poin
 input{font-family:inherit}
 
 /* ============================================================
-   BRASS RAIL FRAME
-   ============================================================ */
-#table-frame{
-  position:fixed;
-  top:calc(var(--sat) + 5px);
-  right:calc(var(--sar) + 5px);
-  bottom:calc(var(--sab) + 5px);
-  left:calc(var(--sal) + 5px);
-  z-index:var(--z-frame);
-  pointer-events:none;
-  border-radius:12px;
-  /* turned-brass molding cross-section: outer dark edge -> bright highlight ridge -> brass body -> inner shadow -> dark reveal; mahogany surround outside */
-  box-shadow:
-    0 0 0 3px var(--mahogany),
-    0 0 0 6px var(--mahogany-deep),
-    inset 0 0 0 1px var(--brass-lo),
-    inset 0 0 0 5px var(--brass-hi),
-    inset 0 0 0 13px var(--brass),
-    inset 0 0 0 16px var(--brass-lo),
-    inset 0 0 0 17px rgba(0,0,0,.5);
-}
-
-/* ============================================================
    APP SHELL
    ============================================================ */
 #app{
@@ -111,11 +85,6 @@ input{font-family:inherit}
   max-width:480px;
   margin:0 auto;
   min-height:var(--visible-h);
-  /* keep content off the rail */
-  padding-top:calc(var(--rail-size) + 8px);
-  padding-bottom:calc(var(--rail-size) + 8px);
-  padding-left:calc(var(--rail-size) + 2px);
-  padding-right:calc(var(--rail-size) + 2px);
 }
 
 .screen{
@@ -123,7 +92,7 @@ input{font-family:inherit}
   flex-direction:column;
   gap:var(--sp-4);
   padding:var(--sp-4) var(--sp-3) var(--sp-6);
-  min-height:calc(var(--visible-h) - (var(--rail-size)*2) - 16px);
+  min-height:var(--visible-h);
   z-index:var(--z-screen);
   animation:screen-in .42s cubic-bezier(.2,.7,.2,1) both;
 }
@@ -1038,9 +1007,9 @@ input{font-family:inherit}
    ============================================================ */
 .sound-toggle{
   position:fixed;
-  top:calc(var(--sat) + var(--rail-size) + 8px);
-  right:calc(var(--sar) + var(--rail-size) + 8px);
-  z-index:calc(var(--z-frame) + 1);
+  top:calc(var(--sat) + 8px);
+  right:calc(var(--sar) + 8px);
+  z-index:var(--z-float);
   width:40px;height:40px;
   border-radius:50%;
   background:linear-gradient(180deg, var(--brass-hi), var(--brass) 40%, var(--brass-lo));
@@ -1346,8 +1315,6 @@ summary:focus-visible,
     </div>
   </div>
 
-  <!-- BRASS RAIL FRAME -->
-  <div id="table-frame" aria-hidden="true"></div>
 
 </div>
 
