@@ -44,6 +44,12 @@
 
   /* Rail geometry — adjust if safe area insets shift */
   --rail-size:22px;
+
+  /* Safe-area tokens — defined once here; override via JS for testing */
+  --sat: env(safe-area-inset-top);
+  --sar: env(safe-area-inset-right);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -62,9 +68,8 @@ body{
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
   overflow-x:hidden;
-  min-height:100%;
+  min-height:100vh;
   min-height:100dvh;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
 button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
@@ -75,10 +80,10 @@ input{font-family:inherit}
    ============================================================ */
 #table-frame{
   position:fixed;
-  top:calc(env(safe-area-inset-top) + 5px);
-  right:calc(env(safe-area-inset-right) + 5px);
-  bottom:calc(env(safe-area-inset-bottom) + 5px);
-  left:calc(env(safe-area-inset-left) + 5px);
+  top:calc(var(--sat) + 5px);
+  right:calc(var(--sar) + 5px);
+  bottom:calc(var(--sab) + 5px);
+  left:calc(var(--sal) + 5px);
   z-index:var(--z-frame);
   pointer-events:none;
   border-radius:12px;
@@ -101,12 +106,16 @@ input{font-family:inherit}
   width:100%;
   max-width:480px;
   margin:0 auto;
-  min-height:100dvh;
-  /* keep content off the rail */
-  padding-top:calc(var(--rail-size) + 8px);
-  padding-bottom:calc(var(--rail-size) + 8px);
-  padding-left:calc(var(--rail-size) + 2px);
-  padding-right:calc(var(--rail-size) + 2px);
+  display:flex;
+  flex-direction:column;
+  height:100vh;
+  height:100dvh;
+  overflow:hidden;
+  /* keep content off the rail, accounting for safe-area insets exactly once */
+  padding-top:calc(var(--sat) + var(--rail-size) + 8px);
+  padding-bottom:calc(var(--sab) + var(--rail-size) + 8px);
+  padding-left:calc(var(--sal) + var(--rail-size) + 2px);
+  padding-right:calc(var(--sar) + var(--rail-size) + 2px);
 }
 
 .screen{
@@ -114,11 +123,10 @@ input{font-family:inherit}
   flex-direction:column;
   gap:var(--sp-4);
   padding:var(--sp-4) var(--sp-3) var(--sp-6);
-  min-height:calc(100dvh - (var(--rail-size)*2) - 16px);
   z-index:var(--z-screen);
   animation:screen-in .42s cubic-bezier(.2,.7,.2,1) both;
 }
-.screen.active{display:flex}
+.screen.active{display:flex;flex:1 1 auto;min-height:0;overflow-y:auto}
 
 @keyframes screen-in{
   from{opacity:0;transform:translateY(14px)}
@@ -248,7 +256,7 @@ input{font-family:inherit}
   margin-left:calc(-1 * var(--sp-3));
   margin-right:calc(-1 * var(--sp-3));
   margin-bottom:calc(-1 * var(--sp-6));
-  padding:var(--sp-3) var(--sp-3) calc(env(safe-area-inset-bottom) + var(--sp-3));
+  padding:var(--sp-3) var(--sp-3) calc(var(--sab) + var(--sp-3));
   background:linear-gradient(180deg, rgba(27,58,38,0) 0%, var(--felt) 32%, var(--felt-shadow) 100%);
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
@@ -1026,8 +1034,8 @@ input{font-family:inherit}
    ============================================================ */
 .sound-toggle{
   position:fixed;
-  top:calc(env(safe-area-inset-top) + var(--rail-size) + 8px);
-  right:calc(env(safe-area-inset-right) + var(--rail-size) + 8px);
+  top:calc(var(--sat) + var(--rail-size) + 8px);
+  right:calc(var(--sar) + var(--rail-size) + 8px);
   z-index:calc(var(--z-frame) + 1);
   width:40px;height:40px;
   border-radius:50%;
