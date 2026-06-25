@@ -44,6 +44,15 @@
 
   /* Rail geometry — adjust if safe area insets shift */
   --rail-size:22px;
+
+  /* Safe-area insets hoisted to variables so the full-screen height math stays
+     consistent (and so a test harness can override them to simulate a device). */
+  --sat:env(safe-area-inset-top, 0px);
+  --sar:env(safe-area-inset-right, 0px);
+  --sab:env(safe-area-inset-bottom, 0px);
+  --sal:env(safe-area-inset-left, 0px);
+  /* Height actually visible inside the safe area, for full-screen panels. */
+  --visible-h:calc(100dvh - var(--sat) - var(--sab));
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -64,7 +73,7 @@ body{
   overflow-x:hidden;
   min-height:100%;
   min-height:100dvh;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding:var(--sat) var(--sar) var(--sab) var(--sal);
 }
 
 button{font-family:inherit;color:inherit;border:none;background:none;cursor:pointer}
@@ -75,10 +84,10 @@ input{font-family:inherit}
    ============================================================ */
 #table-frame{
   position:fixed;
-  top:calc(env(safe-area-inset-top) + 5px);
-  right:calc(env(safe-area-inset-right) + 5px);
-  bottom:calc(env(safe-area-inset-bottom) + 5px);
-  left:calc(env(safe-area-inset-left) + 5px);
+  top:calc(var(--sat) + 5px);
+  right:calc(var(--sar) + 5px);
+  bottom:calc(var(--sab) + 5px);
+  left:calc(var(--sal) + 5px);
   z-index:var(--z-frame);
   pointer-events:none;
   border-radius:12px;
@@ -101,7 +110,7 @@ input{font-family:inherit}
   width:100%;
   max-width:480px;
   margin:0 auto;
-  min-height:100dvh;
+  min-height:var(--visible-h);
   /* keep content off the rail */
   padding-top:calc(var(--rail-size) + 8px);
   padding-bottom:calc(var(--rail-size) + 8px);
@@ -114,7 +123,7 @@ input{font-family:inherit}
   flex-direction:column;
   gap:var(--sp-4);
   padding:var(--sp-4) var(--sp-3) var(--sp-6);
-  min-height:calc(100dvh - (var(--rail-size)*2) - 16px);
+  min-height:calc(var(--visible-h) - (var(--rail-size)*2) - 16px);
   z-index:var(--z-screen);
   animation:screen-in .42s cubic-bezier(.2,.7,.2,1) both;
 }
@@ -248,7 +257,10 @@ input{font-family:inherit}
   margin-left:calc(-1 * var(--sp-3));
   margin-right:calc(-1 * var(--sp-3));
   margin-bottom:calc(-1 * var(--sp-6));
-  padding:var(--sp-3) var(--sp-3) calc(env(safe-area-inset-bottom) + var(--sp-3));
+  /* When this bar pins to the bottom it sits against the viewport edge, so it
+     needs its own home-indicator inset (the body padding doesn't apply once it
+     is stuck). Use the safe-area variable so a test harness can simulate it. */
+  padding:var(--sp-3) var(--sp-3) calc(var(--sab) + var(--sp-3));
   background:linear-gradient(180deg, rgba(27,58,38,0) 0%, var(--felt) 32%, var(--felt-shadow) 100%);
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
@@ -1026,8 +1038,8 @@ input{font-family:inherit}
    ============================================================ */
 .sound-toggle{
   position:fixed;
-  top:calc(env(safe-area-inset-top) + var(--rail-size) + 8px);
-  right:calc(env(safe-area-inset-right) + var(--rail-size) + 8px);
+  top:calc(var(--sat) + var(--rail-size) + 8px);
+  right:calc(var(--sar) + var(--rail-size) + 8px);
   z-index:calc(var(--z-frame) + 1);
   width:40px;height:40px;
   border-radius:50%;
