@@ -1,4 +1,4 @@
-const CACHE = 'screw-the-dealer-v10';
+const CACHE = 'screw-the-dealer-v11';
 const ASSETS = ['./', './index.html', './manifest.json', './apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
