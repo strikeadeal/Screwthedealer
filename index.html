@@ -194,35 +194,26 @@ input{font-family:inherit}
    RULES DISCLOSURE
    ============================================================ */
 .rules{
-  border:1px solid rgba(181,144,78,.2);
-  border-radius:var(--r-md);
-  overflow:hidden;
-  background:rgba(0,0,0,.18);
+  border:1px solid var(--line);border-radius:var(--r-md);
+  overflow:hidden;background:var(--surface);
 }
 .rules summary{
   list-style:none;cursor:pointer;
   padding:14px var(--sp-3);
   display:flex;justify-content:space-between;align-items:center;
-  font-family:var(--ui);
-  font-weight:600;
-  font-size:.85rem;
-  letter-spacing:.14em;
-  text-transform:uppercase;
-  color:var(--text);
-  min-height:48px;
+  font-family:var(--ui);font-weight:600;font-size:.95rem;
+  letter-spacing:0;color:var(--text);min-height:48px;
 }
 .rules summary::-webkit-details-marker{display:none}
-.rules summary .chev{color:var(--brass);transition:transform .25s ease;font-style:normal}
+.rules summary .chev{color:var(--accent);transition:transform .25s ease;font-style:normal}
 .rules[open] summary .chev{transform:rotate(180deg)}
 .rules-body{
   padding:0 var(--sp-3) var(--sp-3);
-  font-family:var(--ui);
-  color:var(--text-dim);
-  font-size:.88rem;
-  line-height:1.65;
+  font-family:var(--ui);color:var(--text-muted);
+  font-size:.92rem;line-height:1.65;
 }
 .rules-body ol{padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
-.rules-body b{color:var(--ivory-shade);font-weight:600}
+.rules-body b{color:var(--text);font-weight:600}
 
 /* ============================================================
    PLAYER SETUP
@@ -230,46 +221,32 @@ input{font-family:inherit}
 .players{display:flex;flex-direction:column;gap:var(--sp-2)}
 .player-row{display:flex;align-items:center;gap:var(--sp-2)}
 .player-seat{
-  width:34px;height:34px;flex:0 0 34px;border-radius:50%;
+  width:36px;height:36px;flex:0 0 36px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--display);font-weight:700;font-size:1rem;
-  color:var(--brass);
-  border:1px solid rgba(181,144,78,.35);
-  background:rgba(0,0,0,.25);
+  font-family:var(--display);font-weight:600;font-size:1rem;
+  color:var(--accent);
+  border:1px solid var(--line-strong);background:var(--surface);
 }
 .player-input{
   flex:1;min-height:var(--tap);
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(181,144,78,.2);
-  border-radius:var(--r-md);
-  padding:0 var(--sp-3);
-  color:var(--text);
-  font-family:var(--ui);
-  font-size:1rem;
-  transition:border-color .2s ease, background .2s ease;
+  background:var(--surface-hi);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:0 var(--sp-3);
+  color:var(--text);font-family:var(--ui);font-size:1rem;
+  transition:border-color .18s ease, background .18s ease;
 }
-.player-input::placeholder{color:rgba(147,166,143,.5)}
-.player-input:focus{
-  outline:none;
-  border-color:var(--brass);
-  background:rgba(0,0,0,.32);
-}
+.player-input::placeholder{color:var(--text-faint)}
+.player-input:focus{outline:none;border-color:var(--accent);background:#2C2730}
 .player-remove{
   width:var(--tap);height:var(--tap);flex:0 0 var(--tap);
-  border-radius:var(--r-md);
-  color:var(--text-dim);
-  font-size:1.4rem;
-  line-height:1;
+  border-radius:var(--r-md);color:var(--text-faint);
+  font-size:1.4rem;line-height:1;
   display:flex;align-items:center;justify-content:center;
 }
-.player-remove:active{color:var(--card-red)}
+.player-remove:active{color:var(--red)}
 .add-player{align-self:flex-start;margin-top:var(--sp-1)}
 .form-error{
-  font-family:var(--ui);
-  color:var(--card-red);
-  font-size:.85rem;
-  min-height:1.2em;
-  font-weight:500;
+  font-family:var(--ui);color:var(--red);
+  font-size:.9rem;min-height:1.2em;font-weight:500;
 }
 
 /* ============================================================
