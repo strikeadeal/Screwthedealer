@@ -433,58 +433,28 @@ input{font-family:inherit}
    RESULT BANNER
    ============================================================ */
 .banner{
-  text-align:center;
-  border-radius:var(--r-lg);
-  padding:var(--sp-4) var(--sp-3);
-  z-index:var(--z-banner);
-  animation:banner-pop .5s cubic-bezier(.2,.9,.3,1.2) both;
+  text-align:center;border-radius:var(--r-lg);
+  padding:var(--sp-4) var(--sp-3);z-index:var(--z-banner);
+  background:var(--surface);border:1px solid var(--line);
+  animation:banner-pop .42s cubic-bezier(.2,.8,.3,1) both;
 }
-.banner .b-eyebrow{
-  font-family:var(--ui);
-  font-size:.7rem;
-  letter-spacing:.24em;
-  text-transform:uppercase;
-  font-weight:600;
-}
+.banner .b-eyebrow{font-family:var(--ui);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
 .banner .b-main{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(1.7rem,8vw,2.3rem);
-  line-height:1.05;
-  margin-top:6px;
-  letter-spacing:.04em;
-  text-transform:uppercase;
+  font-family:var(--display);font-weight:600;
+  font-size:clamp(1.8rem,8vw,2.4rem);line-height:1.05;margin-top:6px;letter-spacing:-.01em;
 }
-.banner .b-sub{
-  font-family:var(--ui);
-  font-size:.92rem;
-  margin-top:8px;
-  opacity:.85;
-}
-.banner.win{
-  background:rgba(0,0,0,.22);
-  border:1px solid var(--brass-lo);
-}
-.banner.win .b-eyebrow{color:var(--brass)}
-.banner.win .b-main{color:var(--ivory)}
-.banner.win .b-sub{color:var(--brass-hi)}
-.banner.penalty{
-  background:rgba(0,0,0,.22);
-  border:1px solid rgba(156,42,36,.65);
-}
-.banner.penalty .b-eyebrow{color:var(--card-red)}
-.banner.penalty .b-main{color:var(--ivory)}
-.banner.penalty .b-sub{color:rgba(236,226,201,.7)}
-.drink-num{
-  font-family:var(--data);
-  font-size:1.1em;
-  color:var(--brass);
-  font-weight:700;
-}
-.banner.penalty .drink-num{color:var(--card-red)}
+.banner .b-sub{font-family:var(--ui);font-size:.95rem;margin-top:8px;color:var(--text-muted)}
+.banner.win{border-color:rgba(231,178,76,.5)}
+.banner.win .b-eyebrow{color:var(--accent)}
+.banner.win .b-main{color:var(--text)}
+.banner.penalty{border-color:rgba(229,97,94,.5)}
+.banner.penalty .b-eyebrow{color:var(--red)}
+.banner.penalty .b-main{color:var(--text)}
+.drink-num{font-family:var(--data);font-variant-numeric:tabular-nums;font-size:1.1em;color:var(--accent);font-weight:700}
+.banner.penalty .drink-num{color:var(--red)}
 
 @keyframes banner-pop{
-  from{opacity:0;transform:scale(.93) translateY(8px)}
+  from{opacity:0;transform:translateY(8px)}
   to{opacity:1;transform:none}
 }
 
@@ -737,68 +707,36 @@ input{font-family:inherit}
 .sound-toggle:active{transform:translateY(1px);color:var(--text)}
 
 /* ============================================================
-   CELEBRATION — brass glint (win) + wax stamp (loss)
+   CELEBRATION — subtle amber glint (win) + embossed seal (loss)
    ============================================================ */
-
-/* Brass specular sheen that sweeps once across the revealed card.
-   The wrapper clips to the card so the sheen stays on the ivory. */
 .card-glint{
-  position:absolute;
-  top:50%;left:50%;
-  width:200px;height:288px;
-  transform:translate(-50%,-50%);
-  border-radius:16px;
-  overflow:hidden;
-  pointer-events:none;
-  z-index:6;
+  position:absolute;top:50%;left:50%;
+  width:210px;height:300px;transform:translate(-50%,-50%);
+  border-radius:var(--r-card);overflow:hidden;pointer-events:none;z-index:6;
 }
 .card-glint::before{
-  content:'';
-  position:absolute;
-  top:-20%;left:0;
-  width:100%;height:140%;
+  content:'';position:absolute;top:-20%;left:0;width:100%;height:140%;
   background:linear-gradient(115deg,
-    transparent 30%,
-    rgba(255,255,255,0) 35%,
-    rgba(236,212,154,.55) 50%,
-    rgba(255,255,255,.85) 53%,
-    rgba(236,212,154,0) 70%);
+    transparent 40%, rgba(255,255,255,.35) 50%, rgba(231,178,76,.25) 55%, transparent 66%);
   transform:translateX(-120%);
   animation:glint-sweep .7s ease-out forwards;
 }
-@keyframes glint-sweep{
-  from{transform:translateX(-120%)}
-  to{transform:translateX(120%)}
-}
+@keyframes glint-sweep{from{transform:translateX(-120%)}to{transform:translateX(120%)}}
 
-/* Deep-red wax seal pressed onto the card, reading SCREWED. */
-.wax-stamp{
-  position:fixed;
-  left:50%;top:38%;
-  width:150px;height:150px;
-  transform:translate(-50%,-50%) scale(1) rotate(-9deg);
-  border-radius:48% 52% 51% 49% / 50% 49% 51% 50%;
-  background:radial-gradient(circle at 38% 32%, #b8443c, #7e211b 58%, #4e120e);
-  box-shadow:
-    0 6px 14px rgba(0,0,0,.55),
-    inset 0  2px 4px rgba(255,255,255,.18),
-    inset 0 -5px 9px rgba(0,0,0,.45);
-  display:flex;align-items:center;justify-content:center;
-  text-align:center;
-  pointer-events:none;
-  z-index:55;
-  font-family:var(--display);
-  font-weight:700;
-  font-size:1.45rem;
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  color:#5a160f;
-  text-shadow:0 1px 0 rgba(255,255,255,.16);
-  animation:wax-press .55s cubic-bezier(.2,1.3,.4,1) both;
+/* LOSS: a clean embossed red "SCREWED" seal, not a wax blob. */
+.penalty-seal{
+  position:fixed;left:50%;top:38%;
+  transform:translate(-50%,-50%) rotate(-7deg);
+  padding:8px 18px;border:2px solid var(--red);border-radius:8px;
+  color:var(--red);background:rgba(229,97,94,.08);
+  font-family:var(--display);font-weight:600;font-size:1.5rem;
+  letter-spacing:.04em;text-transform:uppercase;
+  pointer-events:none;z-index:55;
+  animation:seal-press .45s cubic-bezier(.2,.9,.35,1) both;
 }
-@keyframes wax-press{
-  from{transform:translate(-50%,-50%) scale(1.6) rotate(-9deg);opacity:0}
-  to{transform:translate(-50%,-50%) scale(1) rotate(-9deg);opacity:1}
+@keyframes seal-press{
+  from{transform:translate(-50%,-50%) rotate(-7deg) scale(1.5);opacity:0}
+  to{transform:translate(-50%,-50%) rotate(-7deg) scale(1);opacity:1}
 }
 
 /* ============================================================
@@ -837,7 +775,7 @@ summary:focus-visible,
   .deal-overlay{display:none}
   .deal-card{animation:none}
   .deck-bar-fill{transition:none}
-  .wax-stamp{animation:none}
+  .penalty-seal{animation:none}
 }
 </style>
 </head>
@@ -1463,7 +1401,7 @@ summary:focus-visible,
 
   /* ============ CELEBRATION HELPERS ============ */
   function clearCelebration(){
-    var existing = document.querySelectorAll('.card-glint, .wax-stamp');
+    var existing = document.querySelectorAll('.card-glint, .penalty-seal');
     for(var i=0;i<existing.length;i++){ existing[i].parentNode && existing[i].parentNode.removeChild(existing[i]); }
   }
 
@@ -1477,10 +1415,10 @@ summary:focus-visible,
     setTimeout(function(){ glint.parentNode && glint.parentNode.removeChild(glint); }, 900);
   }
 
-  // LOSS: a deep-red wax seal presses onto the card reading SCREWED.
+  // LOSS: a clean embossed "SCREWED" seal presses onto the card.
   function spawnWaxStamp(){
     var stamp = document.createElement('div');
-    stamp.className = 'wax-stamp';
+    stamp.className = 'penalty-seal';
     stamp.textContent = 'SCREWED';
     document.getElementById('app').appendChild(stamp);
     setTimeout(function(){ stamp.parentNode && stamp.parentNode.removeChild(stamp); }, 1500);
