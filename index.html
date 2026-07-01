@@ -461,57 +461,23 @@ input{font-family:inherit}
 /* ============================================================
    ROTATE / PASS SCREEN
    ============================================================ */
-.pass{
-  text-align:center;
-  display:flex;flex-direction:column;
-  gap:var(--sp-3);
-  align-items:center;justify-content:center;
-  flex:1;
-}
-
-/* Mini card-back tile replacing the playing card emoji */
+.pass{text-align:center;display:flex;flex-direction:column;gap:var(--sp-3);align-items:center;justify-content:center;flex:1}
 .pass-chip{
-  width:52px;height:72px;
-  border-radius:8px;
-  border:1px solid var(--brass-lo);
-  background:
-    repeating-linear-gradient( 45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px, rgba(181,144,78,.14) 8px, transparent 9px, transparent 16px),
-    repeating-linear-gradient(-45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px, rgba(181,144,78,.14) 8px, transparent 9px, transparent 16px),
-    var(--felt);
-  box-shadow:0 4px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(236,212,154,.1);
-  display:flex;align-items:center;justify-content:center;
+  width:56px;height:78px;border-radius:10px;
+  border:1px solid var(--line-strong);background:var(--surface);
+  box-shadow:var(--sh-2);display:flex;align-items:center;justify-content:center;
 }
-.pass-chip::after{
-  content:'♠';
-  font-size:1.5rem;
-  color:var(--brass);
-  opacity:.75;
-}
-
+.pass-chip::after{content:'♠\FE0E';font-size:1.6rem;color:var(--accent);opacity:.85}
 .pass .pass-label{
-  font-family:var(--ui);
-  color:var(--text-dim);
-  letter-spacing:.22em;
-  text-transform:uppercase;
-  font-size:.8rem;
-  font-weight:600;
+  font-family:var(--ui);color:var(--text-muted);letter-spacing:.14em;
+  text-transform:uppercase;font-size:.8rem;font-weight:600;
 }
 .pass .pass-name{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(2rem,10vw,2.9rem);
-  color:var(--brass);
-  line-height:1.04;
-  overflow-wrap:break-word;
-  letter-spacing:.02em;
-  text-transform:uppercase;
+  font-family:var(--display);font-weight:600;
+  font-size:clamp(2rem,10vw,2.9rem);color:var(--accent);
+  line-height:1.04;overflow-wrap:break-word;letter-spacing:-.01em;
 }
-.pass .pass-note{
-  font-family:var(--ui);
-  color:var(--text-dim);
-  font-size:.9rem;
-  max-width:30ch;
-}
+.pass .pass-note{font-family:var(--ui);color:var(--text-muted);font-size:.92rem;max-width:30ch}
 
 /* ============================================================
    GAME-OVER RECEIPT
