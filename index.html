@@ -104,12 +104,12 @@ input{font-family:inherit}
   padding:var(--sp-4) var(--sp-3) var(--sp-6);
   min-height:var(--visible-h);
   z-index:var(--z-screen);
-  animation:screen-in .42s cubic-bezier(.2,.7,.2,1) both;
+  animation:screen-in .34s cubic-bezier(.2,.7,.25,1) both;
 }
 .screen.active{display:flex}
 
 @keyframes screen-in{
-  from{opacity:0;transform:translateY(14px)}
+  from{opacity:0;transform:translateY(10px)}
   to{opacity:1;transform:none}
 }
 
@@ -654,7 +654,7 @@ input{font-family:inherit}
 }
 
 /* ============================================================
-   FOCUS-VISIBLE RINGS (brass)
+   FOCUS-VISIBLE RINGS (amber)
    ============================================================ */
 .btn:focus-visible,
 .value-cell:focus-visible,
@@ -1319,7 +1319,7 @@ summary:focus-visible,
     for(var i=0;i<existing.length;i++){ existing[i].parentNode && existing[i].parentNode.removeChild(existing[i]); }
   }
 
-  // WIN: a single brass sheen sweeps once across the revealed card.
+  // WIN: a single amber sheen sweeps once across the revealed card.
   function spawnGlint(){
     var stage = document.querySelector('.screen[data-screen="reveal"] .card-stage');
     if(!stage) return;
@@ -1636,7 +1636,7 @@ summary:focus-visible,
         '<div class="b-sub">'+escName(state.players[guesserIndex()])+' drinks <span class="drink-num">'+r.amount+'</span> \xb7 <span class="drink-num">'+r.total+'</span> on the tab'+escName(streakNote)+'</div>';
       buzz([60,40,60]);
       sfxPenalty();
-      // Wax SCREWED stamp; under reduced motion the CSS makes it appear instantly.
+      // SCREWED penalty seal; under reduced motion the CSS makes it appear instantly.
       spawnWaxStamp();
     }
   }
