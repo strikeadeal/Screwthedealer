@@ -376,84 +376,58 @@ input{font-family:inherit}
 /* ============================================================
    FULL CARD + FLIP
    ============================================================ */
-.card-stage{
-  position:relative;
-  display:flex;
-  justify-content:center;
-  padding:var(--sp-2) 0;
-  perspective:1400px;
-}
+.card-stage{position:relative;display:flex;justify-content:center;padding:var(--sp-2) 0;perspective:1400px}
 .card-flip{
-  position:relative;
-  width:200px;height:288px;
-  transform-style:preserve-3d;
-  -webkit-transform-style:preserve-3d;
-  transition:transform .75s cubic-bezier(.3,1.2,.4,1);
+  position:relative;width:210px;height:300px;
+  transform-style:preserve-3d;-webkit-transform-style:preserve-3d;
+  transition:transform .72s cubic-bezier(.2,.8,.25,1);
 }
 .card-flip.down{transform:rotateY(180deg)}
 .card-face{
-  position:absolute;inset:0;
-  border-radius:16px;
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
-  overflow:hidden;
-  box-shadow:var(--sh-card);
+  position:absolute;inset:0;border-radius:var(--r-card);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  overflow:hidden;box-shadow:var(--sh-card);
 }
-
-/* FRONT — aged ivory with paper grain */
 .card-face.front{
   transform:rotateY(0deg);
-  background:
-    radial-gradient(ellipse at 30% 18%, rgba(255,255,255,.22) 0%, transparent 55%),
-    repeating-linear-gradient(91deg, rgba(0,0,0,.025) 0px, transparent 1px, transparent 5px),
-    repeating-linear-gradient(1deg,  rgba(0,0,0,.018) 0px, transparent 1px, transparent 8px),
-    var(--ivory);
-  color:var(--ink);
-  border:1px solid rgba(33,25,19,.2);
+  background:var(--paper);color:var(--paper-ink);
+  border:1px solid rgba(33,27,20,.18);
 }
-
-/* BACK — deco guilloché */
 .card-face.back{
   transform:rotateY(180deg);
-  background:
-    repeating-linear-gradient( 45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
-    repeating-linear-gradient(-45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
-    var(--felt);
-  border:1px solid var(--brass-lo);
+  background:var(--surface);border:1px solid var(--line-strong);
 }
 .card-back-emblem{
-  position:absolute;inset:12px;
-  border:1px solid rgba(181,144,78,.55);
-  border-radius:10px;
-  box-shadow:inset 0 0 0 3px rgba(181,144,78,.2);
+  position:absolute;inset:14px;border:1px solid rgba(231,178,76,.5);
+  border-radius:10px;box-shadow:inset 0 0 0 3px rgba(231,178,76,.14);
   display:flex;align-items:center;justify-content:center;
 }
-.card-back-emblem span{
-  font-size:3.2rem;
-  color:var(--brass);
-  opacity:.8;
-  text-shadow:0 1px 2px rgba(0,0,0,.5);
-}
+.card-back-emblem span{font-size:3.2rem;color:var(--accent);opacity:.85}
 
-/* Card corners + center */
 .card-corner{
-  position:absolute;
-  display:flex;flex-direction:column;align-items:center;
-  line-height:1;
-  font-family:var(--display);
-  font-weight:700;
+  position:absolute;display:flex;flex-direction:column;align-items:center;
+  line-height:1;font-family:var(--display);font-weight:600;
 }
-.card-corner .cc-v{font-size:1.5rem}
-.card-corner .cc-s{font-size:1.2rem;margin-top:1px}
-.card-corner.tl{top:10px;left:12px}
-.card-corner.br{bottom:10px;right:12px;transform:rotate(180deg)}
-.card-center{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
+.card-corner .cc-v{font-size:1.55rem}
+.card-corner .cc-s{font-size:1.15rem;margin-top:2px}
+.card-corner.tl{top:12px;left:14px}
+.card-corner.br{bottom:12px;right:14px;transform:rotate(180deg)}
+.card-face.red{color:var(--suit-red)}
+
+/* Pip field for number cards 2-10 */
+.card-pips{position:absolute;inset:44px 40px}
+.card-pips .pip{
+  position:absolute;transform:translate(-50%,-50%);
+  font-size:2rem;line-height:1;
 }
-.card-center span{font-size:6rem;line-height:1}
-.card-face.red{color:var(--card-red)}
-.card-face.red .card-center span{color:var(--card-red)}
+.card-pips .pip.flip{transform:translate(-50%,-50%) rotate(180deg)}
+
+/* Centerpiece for A / J / Q / K */
+.card-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.card-center .cc-big{font-family:var(--display);font-weight:600;font-size:4.4rem;line-height:.9}
+.card-center .cc-suit{font-size:2.6rem;line-height:1}
+.card-center.ace .cc-suit{font-size:5rem}
+.card-center.ace .cc-big{display:none}
 
 /* ============================================================
    RESULT BANNER
@@ -726,29 +700,21 @@ input{font-family:inherit}
 .deal-overlay{
   position:fixed;inset:0;z-index:100;
   display:flex;align-items:center;justify-content:center;
-  pointer-events:none;
-  visibility:hidden;
+  pointer-events:none;visibility:hidden;
 }
 .deal-overlay.active{visibility:visible}
 .deal-card{
-  position:relative;
-  width:200px;height:288px;border-radius:16px;
-  background:
-    repeating-linear-gradient( 45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
-    repeating-linear-gradient(-45deg, rgba(181,144,78,.18) 0px, transparent 1px, transparent 10px, rgba(181,144,78,.12) 10px, transparent 11px, transparent 20px),
-    var(--felt);
-  border:1px solid var(--brass-lo);
+  position:relative;width:210px;height:300px;border-radius:var(--r-card);
+  background:var(--surface);border:1px solid var(--line-strong);
   box-shadow:var(--sh-card);
   display:flex;align-items:center;justify-content:center;
 }
 .deal-card .dc-emblem{
-  position:absolute;inset:12px;
-  border:1px solid rgba(181,144,78,.5);
-  border-radius:10px;
-  display:flex;align-items:center;justify-content:center;
+  position:absolute;inset:14px;border:1px solid rgba(231,178,76,.5);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;
 }
-.deal-card .dc-emblem span{font-size:3.2rem;color:var(--brass);opacity:.8}
-.deal-card.animating{animation:deal-fly .7s cubic-bezier(.15,1.4,.4,1) both}
+.deal-card .dc-emblem span{font-size:3.2rem;color:var(--accent);opacity:.85}
+.deal-card.animating{animation:deal-fly .7s cubic-bezier(.15,1.2,.4,1) both}
 
 @keyframes deal-fly{
   from{transform:translate(-130px,180px) scale(.32) rotate(-12deg);opacity:0}
@@ -1615,14 +1581,51 @@ summary:focus-visible,
   // hearts/diamonds as color emoji; CSS then controls the color.
   function suitSym(s){ return SUITS[s].sym + '︎'; }
 
+  // Pip centers as [xPercent, yPercent] within the .card-pips field.
+  // Pips below the vertical midline are rotated 180deg (rendered upside-down),
+  // matching real playing cards. L/C/R columns, T..B rows.
+  var _L=22,_C=50,_R=78,_T=8,_TM=27,_UM=33,_M=50,_LM=67,_BM=73,_B=92;
+  var PIPS = {
+    2:[[_C,_T],[_C,_B]],
+    3:[[_C,_T],[_C,_M],[_C,_B]],
+    4:[[_L,_T],[_R,_T],[_L,_B],[_R,_B]],
+    5:[[_L,_T],[_R,_T],[_C,_M],[_L,_B],[_R,_B]],
+    6:[[_L,_T],[_R,_T],[_L,_M],[_R,_M],[_L,_B],[_R,_B]],
+    7:[[_L,_T],[_R,_T],[_C,_TM],[_L,_M],[_R,_M],[_L,_B],[_R,_B]],
+    8:[[_L,_T],[_R,_T],[_C,_TM],[_L,_M],[_R,_M],[_C,_BM],[_L,_B],[_R,_B]],
+    9:[[_L,_T],[_R,_T],[_L,_UM],[_R,_UM],[_C,_M],[_L,_LM],[_R,_LM],[_L,_B],[_R,_B]],
+    10:[[_L,_T],[_R,_T],[_C,_TM],[_L,_UM],[_R,_UM],[_L,_LM],[_R,_LM],[_C,_BM],[_L,_B],[_R,_B]]
+  };
+  function pipMarkup(card){
+    var pts = PIPS[card.value];
+    if(!pts) return '';
+    var sym = suitSym(card.suit), html = '';
+    for(var i=0;i<pts.length;i++){
+      var x=pts[i][0], y=pts[i][1];
+      var flip = y > 50 ? ' flip' : '';
+      html += '<span class="pip'+flip+'" style="left:'+x+'%;top:'+y+'%">'+sym+'</span>';
+    }
+    return '<div class="card-pips">'+html+'</div>';
+  }
+
   function renderFullCard(container, card){
     var s = suitOf(card);
     var label = LABELS[card.value];
+    var sym = suitSym(card.suit);
     container.className = 'card-face front' + (s.red ? ' red' : '');
-    container.innerHTML =
-      '<div class="card-corner tl"><span class="cc-v">'+label+'</span><span class="cc-s">'+s.sym+'</span></div>' +
-      '<div class="card-center"><span>'+s.sym+'</span></div>' +
-      '<div class="card-corner br"><span class="cc-v">'+label+'</span><span class="cc-s">'+s.sym+'</span></div>';
+    var corners =
+      '<div class="card-corner tl"><span class="cc-v">'+label+'</span><span class="cc-s">'+sym+'</span></div>' +
+      '<div class="card-corner br"><span class="cc-v">'+label+'</span><span class="cc-s">'+sym+'</span></div>';
+    var body;
+    if(card.value >= 2 && card.value <= 10){
+      body = pipMarkup(card);
+    }else{
+      var isAce = card.value === 1;
+      body = '<div class="card-center'+(isAce?' ace':'')+'">' +
+             '<span class="cc-big">'+label+'</span>' +
+             '<span class="cc-suit">'+sym+'</span></div>';
+    }
+    container.innerHTML = corners + body;
   }
 
   function renderMiniCard(card){
