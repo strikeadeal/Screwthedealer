@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
-<meta name="theme-color" content="#1E0F0A">
+<meta name="theme-color" content="#121013">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Dealer">
@@ -11,34 +11,47 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,600&family=Jost:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap');
+@font-face{
+  font-family:'Fraunces';
+  font-style:normal;
+  font-weight:600;
+  font-display:swap;
+  src:url('fonts/fraunces-600.woff2') format('woff2');
+}
 
 :root{
-  --mahogany-deep:#1E0F0A;
-  --mahogany:#3A1D13;
-  --felt-shadow:#0F2417;
-  --felt:#1B3A26;
-  --felt-worn:#234A30;
-  --brass:#B5904E;
-  --brass-hi:#ECD49A;
-  --brass-lo:#6B4F25;
-  --ivory:#ECE2C9;
-  --ivory-shade:#D6C7A1;
-  --ink:#211913;
-  --card-red:#9C2A24;
-  --text:#ECE4D2;
-  --text-dim:#93A68F;
+  --bg:#121013;
+  --surface:#1B181D;
+  --surface-hi:#241F26;
+  --line:rgba(245,238,230,.09);
+  --line-strong:rgba(245,238,230,.16);
 
-  --display:'Cormorant',Georgia,serif;
-  --ui:'Jost',system-ui,sans-serif;
-  --data:'Courier Prime',ui-monospace,monospace;
+  --text:#F4EEE4;
+  --text-muted:#ABA49B;
+  --text-faint:#756E67;
+
+  --accent:#E7B24C;
+  --accent-hi:#F6C86E;
+  --accent-ink:#1C1305;
+
+  --red:#E5615E;
+
+  --paper:#F2E9D6;
+  --suit-red:#C23A32;
+  --paper-ink:#211B14;
+
+  --display:'Fraunces',Georgia,serif;
+  --ui:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  --data:var(--ui);
 
   --sp-1:6px; --sp-2:10px; --sp-3:16px; --sp-4:24px; --sp-5:36px; --sp-6:52px;
-  --r-sm:6px; --r-md:10px; --r-lg:16px;
+  --r-sm:10px; --r-md:14px; --r-lg:20px; --r-card:14px;
   --tap:52px;
 
-  --sh-card:0 18px 40px rgba(0,0,0,.65), 0 3px 8px rgba(0,0,0,.45);
-  --sh-pop:0 10px 30px rgba(0,0,0,.55);
+  --sh-1:0 1px 2px rgba(0,0,0,.4);
+  --sh-2:0 8px 24px rgba(0,0,0,.38);
+  --sh-card:0 24px 60px rgba(0,0,0,.55), 0 6px 16px rgba(0,0,0,.4);
+  --sh-accent:0 6px 18px rgba(231,178,76,.18), 0 2px 4px rgba(0,0,0,.4);
 
   --z-screen:1; --z-banner:5; --z-toast:9; --z-float:40;
 
@@ -59,11 +72,8 @@ html,body{height:100%}
 body{
   font-family:var(--ui);
   color:var(--text);
-  background-color:var(--mahogany-deep);
-  background-image:
-    radial-gradient(ellipse 120% 90% at 50% 50%, var(--felt-worn) 0%, var(--felt) 40%, var(--felt-shadow) 78%, var(--mahogany-deep) 100%),
-    repeating-linear-gradient(0deg,   transparent 0px, transparent 3px, rgba(0,0,0,.07) 3px, rgba(0,0,0,.07) 4px),
-    repeating-linear-gradient(90deg,  transparent 0px, transparent 5px, rgba(0,0,0,.05) 5px, rgba(0,0,0,.05) 6px);
+  background-color:var(--bg);
+  background-image:radial-gradient(120% 80% at 50% -10%, rgba(231,178,76,.06) 0%, rgba(231,178,76,0) 42%);
   background-attachment:fixed;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
