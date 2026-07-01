@@ -249,182 +249,85 @@ input{font-family:inherit}
   font-size:.9rem;min-height:1.2em;font-weight:500;
 }
 
-/* ============================================================
-   DEALER / GUESSER ROLE CARD
-   ============================================================ */
 .role-card{
-  border:1px solid rgba(181,144,78,.3);
-  border-radius:var(--r-lg);
-  background:rgba(0,0,0,.28);
-  padding:var(--sp-4);
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  background:var(--surface);padding:var(--sp-4);
   display:flex;flex-direction:column;gap:var(--sp-1);
-  box-shadow:var(--sh-pop), inset 0 1px 0 rgba(236,212,154,.1);
-  text-align:center;
+  box-shadow:var(--sh-2);text-align:center;
 }
 .role-label{
-  font-family:var(--ui);
-  font-size:.68rem;
-  letter-spacing:.26em;
-  text-transform:uppercase;
-  color:var(--brass);
-  font-weight:600;
+  font-family:var(--ui);font-size:.7rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);font-weight:600;
 }
 .role-name{
-  font-family:var(--display);
-  font-weight:700;
-  font-size:clamp(1.85rem,8.5vw,2.5rem);
-  color:var(--ivory);
-  line-height:1.04;
-  overflow-wrap:break-word;
-  letter-spacing:.02em;
-  text-transform:uppercase;
+  font-family:var(--display);font-weight:600;
+  font-size:clamp(1.85rem,8.5vw,2.5rem);color:var(--text);
+  line-height:1.04;overflow-wrap:break-word;letter-spacing:-.01em;
 }
-.role-sub{
-  font-family:var(--ui);
-  color:var(--text-dim);
-  font-size:.9rem;
-}
-.role-sub b{color:var(--ivory-shade);font-weight:600}
+.role-sub{font-family:var(--ui);color:var(--text-muted);font-size:.92rem}
+.role-sub b{color:var(--text);font-weight:600}
 
-/* ============================================================
-   MISS METER
-   ============================================================ */
-.miss-meter{
-  display:flex;align-items:center;justify-content:center;
-  gap:8px;margin-top:4px;min-height:16px;
-}
+.miss-meter{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;min-height:16px}
 .miss-dot{
-  width:11px;height:11px;border-radius:50%;
-  border:1px solid rgba(181,144,78,.5);
-  background:transparent;
+  width:10px;height:10px;border-radius:50%;
+  border:1px solid var(--line-strong);background:transparent;
   transition:background .2s ease, border-color .2s ease;
 }
-.miss-dot.on{
-  background:var(--brass);
-  border-color:var(--brass-hi);
-}
+.miss-dot.on{background:var(--accent);border-color:var(--accent)}
 
-/* ============================================================
-   DECK METER
-   ============================================================ */
 .deck-meter{
   display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
   padding:14px var(--sp-3);
-  border:1px solid rgba(181,144,78,.18);
-  border-radius:var(--r-md);
-  background:rgba(0,0,0,.2);
+  border:1px solid var(--line);border-radius:var(--r-md);background:var(--surface);
 }
 .deck-meter .label{
-  font-family:var(--ui);
-  font-size:.72rem;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  font-weight:600;
+  font-family:var(--ui);font-size:.72rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-muted);font-weight:600;
 }
-.deck-count{
-  font-family:var(--data);
-  font-size:1.4rem;
-  font-weight:700;
-  color:var(--ivory);
-}
-.deck-count small{
-  font-family:var(--data);
-  font-size:.85rem;
-  color:var(--text-dim);
-  font-weight:400;
-}
-
-/* Deck progress bar — inset channel, brass fill */
+.deck-count{font-family:var(--data);font-variant-numeric:tabular-nums;font-size:1.4rem;font-weight:700;color:var(--text)}
+.deck-count small{font-size:.85rem;color:var(--text-muted);font-weight:400}
 .deck-bar{
-  height:5px;
-  border-radius:999px;
-  background:rgba(0,0,0,.38);
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.4);
-  overflow:hidden;
-  margin-top:calc(-1 * var(--sp-2));
+  height:6px;border-radius:999px;background:rgba(0,0,0,.35);
+  overflow:hidden;margin-top:calc(-1 * var(--sp-2));
 }
-.deck-bar-fill{
-  height:100%;
-  border-radius:999px;
-  background:linear-gradient(90deg,var(--brass-lo),var(--brass));
-  transition:width .3s ease;
-}
+.deck-bar-fill{height:100%;border-radius:999px;background:var(--accent);transition:width .3s ease}
 
-/* ============================================================
-   BOARD — played cards
-   ============================================================ */
 .board-wrap{display:flex;flex-direction:column;gap:var(--sp-2)}
 .board-wrap .label{
-  font-family:var(--ui);
-  font-size:.72rem;
-  letter-spacing:.2em;
-  text-transform:uppercase;
-  color:var(--text-dim);
-  font-weight:600;
+  font-family:var(--ui);font-size:.72rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-muted);font-weight:600;
 }
-.board{
-  display:grid;
-  grid-template-columns:repeat(7,1fr);
-  gap:5px;
-  padding:4px 0;
-}
-
-/* Engraved slot */
+.board{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;padding:4px 0}
 .value-slot{
-  position:relative;
-  aspect-ratio:5/7;
-  border-radius:6px;
-  border:1px solid var(--brass-lo);
-  background:rgba(0,0,0,.28);
-  box-shadow:inset 0 2px 4px rgba(0,0,0,.35), inset 0 1px 0 rgba(0,0,0,.2);
+  position:relative;aspect-ratio:5/7;border-radius:8px;
+  border:1px solid var(--line);background:var(--surface);
   display:flex;align-items:center;justify-content:center;
 }
 .value-slot .slot-ghost{
-  font-family:var(--display);
-  font-weight:600;
-  font-size:.95rem;
-  color:rgba(107,79,37,.55);
-  letter-spacing:.03em;
+  font-family:var(--display);font-weight:600;font-size:.95rem;
+  color:var(--text-faint);
 }
-.value-slot.filled{
-  border-color:rgba(181,144,78,.3);
-  background:transparent;
-  box-shadow:none;
-}
+.value-slot.filled{border-color:transparent;background:transparent}
 .value-slot.filled .slot-ghost{display:none}
 
-/* Mini card — aged ivory */
 .mini-card{
-  position:absolute;inset:0;
-  border-radius:6px;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.18) 0%, transparent 55%),
-    repeating-linear-gradient(91deg, rgba(0,0,0,.025) 0px, transparent 1px, transparent 4px),
-    var(--ivory);
-  color:var(--ink);
+  position:absolute;inset:0;border-radius:8px;
+  background:var(--paper);color:var(--paper-ink);
   box-shadow:0 2px 6px rgba(0,0,0,.45);
-  border:1px solid rgba(33,25,19,.18);
-  font-family:var(--display);
-  font-weight:700;
+  border:1px solid rgba(33,27,20,.18);
+  font-family:var(--display);font-weight:600;
 }
-.mini-card .mc-v{position:absolute;top:2px;left:4px;font-size:.82rem;line-height:1}
-.mini-card .mc-s{position:absolute;bottom:2px;right:4px;font-size:.9rem;line-height:1}
-.mini-card.red{color:var(--card-red)}
+.mini-card .mc-v{position:absolute;top:3px;left:5px;font-size:.82rem;line-height:1}
+.mini-card .mc-s{position:absolute;bottom:3px;right:5px;font-size:.9rem;line-height:1}
+.mini-card.red{color:var(--suit-red)}
 
-/* Brass disc badge */
 .slot-count{
   position:absolute;bottom:-5px;right:-5px;z-index:5;
-  min-width:16px;height:16px;padding:0 3px;
-  border-radius:9px;
-  background:linear-gradient(180deg,var(--brass-hi),var(--brass) 50%,var(--brass-lo));
-  color:var(--ink);
-  font-family:var(--data);
-  font-weight:700;
-  font-size:.6rem;
+  min-width:16px;height:16px;padding:0 3px;border-radius:9px;
+  background:var(--accent);color:var(--accent-ink);
+  font-family:var(--data);font-variant-numeric:tabular-nums;font-weight:700;font-size:.6rem;
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 1px 3px rgba(0,0,0,.55);
-  border:1px solid var(--brass-lo);
 }
 
 /* ============================================================
@@ -882,24 +785,6 @@ input{font-family:inherit}
 }
 
 /* ============================================================
-   DECK STACK (mini card-back tiles)
-   ============================================================ */
-.deck-stack{position:relative;width:38px;height:54px;flex:0 0 38px}
-.deck-stack .ds-tile{
-  position:absolute;width:38px;height:54px;border-radius:5px;
-  background:
-    repeating-linear-gradient( 45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px),
-    repeating-linear-gradient(-45deg, rgba(181,144,78,.2) 0px, transparent 1px, transparent 8px),
-    var(--felt);
-  border:1px solid var(--brass-lo);
-  display:flex;align-items:center;justify-content:center;
-}
-.deck-stack .ds-tile span{font-size:1.1rem;color:var(--brass);opacity:.75}
-.deck-stack .ds-tile:nth-child(1){transform:translate(0px,0px);z-index:1}
-.deck-stack .ds-tile:nth-child(2){transform:translate(2px,-2px);z-index:2}
-.deck-stack .ds-tile:nth-child(3){transform:translate(4px,-4px);z-index:3}
-
-/* ============================================================
    DEAL OVERLAY / ANIMATION
    ============================================================ */
 .deal-overlay{
@@ -1117,11 +1002,6 @@ summary:focus-visible,
     </div>
 
     <div class="deck-meter">
-      <div class="deck-stack">
-        <div class="ds-tile"><span>♠</span></div>
-        <div class="ds-tile"><span>♠</span></div>
-        <div class="ds-tile"><span>♠</span></div>
-      </div>
       <span class="label">Cards left</span>
       <span class="deck-count"><span id="deckCount">52</span> <small>/ 52</small></span>
     </div>
@@ -1808,6 +1688,10 @@ summary:focus-visible,
   /* ----- Card rendering ----- */
   function suitOf(card){ return SUITS[card.suit]; }
 
+  // Force text (monochrome) presentation of suit glyphs so iOS doesn't render
+  // hearts/diamonds as color emoji; CSS then controls the color.
+  function suitSym(s){ return SUITS[s].sym + '︎'; }
+
   function renderFullCard(container, card){
     var s = suitOf(card);
     var label = LABELS[card.value];
@@ -1822,7 +1706,7 @@ summary:focus-visible,
     var s = suitOf(card);
     var el = document.createElement('div');
     el.className = 'mini-card' + (s.red ? ' red' : '');
-    el.innerHTML = '<span class="mc-v">'+LABELS[card.value]+'</span><span class="mc-s">'+s.sym+'</span>';
+    el.innerHTML = '<span class="mc-v">'+LABELS[card.value]+'</span><span class="mc-s">'+suitSym(card.suit)+'</span>';
     return el;
   }
 
